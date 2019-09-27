@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<audiohal>
+    <mixer card="0">
+        <!-- Static routing -->
+        <init>
+            <!-- AIF1->DAC1 -->
+            <ctl name="DAC1L Mixer AIF1.1 Switch" val="1"/>
+            <ctl name="DAC1R Mixer AIF1.1 Switch" val="1"/>
+            <ctl name="DAC1 Switch" val="1"/>
+
+            <!-- ADC->AIF2 -->
+            <ctl name="AIF2DAC2L Mixer Left Sidetone Switch" val="1"/>
+            <ctl name="AIF2DAC2L Mixer Right Sidetone Switch" val="0"/>
+            <ctl name="AIF2DAC2R Mixer Left Sidetone Switch" val="0"/>
+            <ctl name="AIF2DAC2R Mixer Right Sidetone Switch" val="1"/>
+            <ctl name="DAC2 Left Sidetone Volume" val="12"/>
+            <ctl name="DAC2 Right Sidetone Volume" val="12"/>
+            <ctl name="DAC2 Switch" val="1"/>
+
+            <!-- DAC1->SPKL/R -->
+            <ctl name="SPKL DAC1 Switch" val="1"/>
+            <ctl name="SPKR DAC1 Switch" val="1"/>
+
+            <!-- DAC->Output mixer -->
+            <ctl name="Left Output Mixer DAC Switch" val="1"/>
+            <ctl name="Right Output Mixer DAC Switch" val="1"/>
+
+            <!-- Input mixer->ADC->AIF1.1 -->
+            <ctl name="AIF1ADC1L Mixer ADC/DMIC Switch" val="1"/>
+            <ctl name="AIF1ADC1R Mixer ADC/DMIC Switch" val="1"/>
+
+            <!-- Main Mic->IN1LP/N->Input Mixer with +30dB at mixer -->
+            <ctl name="IN1L PGA IN1LP Switch" val="1"/>
+            <ctl name="IN1L PGA IN1LN Switch" val="1"/>
+            <ctl name="MIXINL IN1L Volume" val="1"/>
+            <ctl name="IN1L Switch" val="1"/>
+        </init>
+    </mixer>
+
+    <!-- Internal usage (can be used to manage standby/wakeup of the connected codec) -->
+    <device name="global">
+    </device>
+
+    <!-- AUDIO_DEVICE_OUT_SPEAKER (as secondary headset output = Class AB) -->
+    <device name="speaker" device="0" default="1">
+        <path name="on">
+            <ctl name="AIF1DAC1 Volume" val="96"/>
+            <ctl name="DAC1 Volume" val="96"/>
+            <ctl name="Left Output Mixer DAC Volume" val="7"/>
+            <ctl name="Right Output Mixer DAC Volume" val="7"/>
+            <ctl name="SPKL DAC1 Volume" val="1"/>
+            <ctl name="SPKR DAC1 Volume" val="1"/>
+            <ctl name="SPKL Output Switch" val="1"/>
+            <ctl name="SPKR Output Switch" val="1"/>
+            <ctl name="Speaker Mode" val="Class AB"/>
+            <ctl name="Speaker Volume" val="63"/>
+            <ctl name="Speaker Mixer Volume" val="3"/>
+            <ctl name="Speaker Reference" val="SPKVDD/2"/>
+            <ctl name="Speaker ZC Switch" val="0"/>
+<!-- Enable Boost & Equalizer
+            <ctl name="AIF1 Boost Volume" val="0"/>
+            <ctl name="Speaker Boost Volume" val="4"/>
+            <ctl name="AIF1DAC1 EQ Switch" val="1"/>
+            <ctl name="AIF1DAC1 EQ1 Volume" val="9"/>
+            <ctl name="AIF1DAC1 EQ2 Volume" val="7"/>
+            <ctl name="AIF1DAC1 EQ3 Volume" val="10"/>
+            <ctl name="AIF1DAC1 EQ4 Volume" val="13"/>
+            <ctl name="AIF1DAC1 EQ5 Volume" val="12"/>
+-->
+        </path>
+        <path name="off">
+            <ctl name="SPKL Output Switch" val="0"/>
+            <ctl name="SPKR Output Switch" val="0"/>
+            <ctl name="Speaker Volume" val="0"/>
+            <ctl name="Speaker Mixer Volume" val="0"/>
+<!-- Disable Boost & Equalizer
+            <ctl name="Speaker Boost Volume" val="0"/>
+            <ctl name="AIF1 AC1 EQ Switch" val="0"/>
+-->
+        </path>
+        <path name="pcm_out_en">
+            <ctl name="Speaker Switch" val="1"/>
+        </path>
+        <path name="pcm_out_dis">
+            <ctl name="Speaker Switch" val="0"/>
+        </path>
+    </device>
+
+    <!-- AUDIO_DEVICE_OUT_WIRED_HEADSET -->
+    <device name="headset" device="0">
+        <path name="on">
+            <ctl name="Headphone Volume" val="63"/>
+            <ctl name="Headphone ZC Switch" val="0"/>
+            <ctl name="AIF1DAC1 Volume" val="96"/>
+            <ctl name="DAC1 Volume" val="96"/>
+            <ctl name="Left Output Mixer DAC Volume" val="7"/>
+            <ctl name="Right Output Mixer DAC Volume" val="7"/>
+<!-- Enable Boost & Equalizer
+            <ctl name="AIF1 Boost Volume" val="0"/>
+            <ctl name="AIF1DAC1 EQ Switch" val="1"/>
+            <ctl name="AIF1DAC1 EQ1 Volume" val="16"/>
+            <ctl name="AIF1DAC1 EQ2 Volume" val="14"/>
+            <ctl name="AIF1DAC1 EQ3 Volume" val="12"/>
+            <ctl name="AIF1DAC1 EQ4 Volume" val="14"/>
+            <ctl name="AIF1DAC1 EQ5 Volume" val="16"/>
+-->
+        </path>
+        <path name="off">
+            <ctl name="Headphone Volume" val="0"/>
+<!-- Disable Boost & Equalizer
+            <ctl name="AIF1DAC1 EQ Switch" val="0"/>
+-->
+        </path>
+        <path name="pcm_out_en">
+            <ctl name="Headphone Switch" val="1"/>
+        </path>
+        <path name="pcm_out_dis">
+            <ctl name="Headphone Switch" val="0"/>
+        </path>
+    </device>
+    <!-- AUDIO_DEVICE_IN_BUILTIN_MIC -->
+
+    <device name="mic" device="4" default="1">
+    </device>
+
+    <!-- AUDIO_DEVICE_IN_WIRED_HEADSET -->
+    <device name="headset_in" device="1">
+        <path name="on">
+            <ctl name="IN1L Volume" val="22"/>
+            <ctl name="MIXINL IN1L Volume" val="1"/>
+            <ctl name="AIF1ADC1 HPF Switch" val="1"/>
+            <ctl name="AIF1ADC1 Volume" val="96"/>
+        </path>
+        <path name="off">
+            <ctl name="MIXINL IN1L Volume" val="0"/>
+            <ctl name="IN1L Volume" val="10"/>
+        </path>
+        <path name="pcm_in_en">
+            <ctl name="MIXINL IN1L Switch" val="1"/>
+        </path>
+        <path name="pcm_in_dis">
+            <ctl name="MIXINL IN1L Switch" val="0"/>
+        </path>
+    </device>
+
+    <!-- AUDIO_DEVICE_OUT_SPDIF -->
+    <device name="spdif" device="2">
+    </device>
+
+    <!-- AUDIO_DEVICE_IN_AUX_DIGITAL -->
+    <device name="aux" device="3">
+    </device>
+
+    <!-- Internal usage (used to manage generic use cases) -->
+    <stream name="global" type="pcm">
+        <usecase name="A2dpSuspended">
+            <case name="true">
+            </case>
+            <case name="false">
+            </case>
+        </usecase>
+    </stream>
+
+    <stream name="WM8994 Out" type="pcm" dir="out" card="0" device="0" period_size="256">
+        <enable path="pcm_out_en"/>
+        <disable path="pcm_out_dis"/>
+        <usecase name="routing">
+            <!-- AUDIO_DEVICE_OUT_SPEAKER -->
+            <case name="2">
+            </case>
+            <!-- AUDIO_DEVICE_OUT_WIRED_HEADSET -->
+            <case name="4">
+            </case>
+        </usecase>
+    </stream>
+
+    <stream name="WM8994 In" type="pcm" dir="in" card="0" device="1" period_size="256" rate="16000">
+        <enable path="pcm_in_en"/>
+        <disable path="pcm_in_dis"/>
+        <usecase name="routing">
+            <case name="2147483652">
+            </case>
+            <case name="2147483664">
+            </case>
+        </usecase>
+    </stream>
+
+    <stream name="SPDIF Out" type="pcm" dir="out" card="0" device="2" period_size="256">
+        <usecase name="routing">
+            <!-- AUDIO_DEVICE_OUT_HDMI or AUDIO_DEVICE_OUT_AUX_DIGITAL -->
+            <case name="1024">
+            </case>
+            <!-- AUDIO_DEVICE_OUT_SPDIF -->
+            <case name="524288">
+            </case>
+        </usecase>
+    </stream>
+
+    <stream name="SPDIF In" type="pcm" dir="in" card="0" device="3" period_size="256">
+        <usecase name="routing">
+            <!-- AUDIO_DEVICE_IN_HDMI or AUDIO_DEVICE_IN_AUX_DIGITAL -->
+            <case name="2147483680">
+            </case>
+            <!-- AUDIO_DEVICE_IN_SPDIF -->
+            <case name="2147549184">
+            </case>
+        </usecase>
+    </stream>
+
+    <stream name="Digital In 1" type="pcm" dir="in" card="0" device="4" period_size="256" rate="16000">
+        <usecase name="routing">
+            <!-- AUDIO_DEVICE_IN_BUILTIN_MIC -->
+            <case name="2147483652">
+            </case>
+        </usecase>
+    </stream>
+
+    <stream name="Digital In 2" type="pcm" dir="in" card="0" device="5" period_size="256" rate="16000">
+    </stream>
+
+    <stream name="Digital In 3" type="pcm" dir="in" card="0" device="6" period_size="256" rate="16000">
+    </stream>
+
+    <stream name="Digital In 4" type="pcm" dir="in" card="0" device="7" period_size="256" rate="16000">
+    </stream>
+
+</audiohal>

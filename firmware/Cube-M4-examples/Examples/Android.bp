@@ -1,0 +1,6 @@
+cc_prebuilt_binary {
+    name: "fw_cortex_m4_eval.sh",
+    srcs: ["fw_cortex_m4.sh"],
+    proprietary: true,
+    strip: { none: true, },
+}

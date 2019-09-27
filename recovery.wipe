@@ -1,0 +1,12 @@
+# All the partitions to be wiped (in order) under recovery.
+/dev/block/platform/soc/by-name/system_a
+/dev/block/platform/soc/by-name/system_b
+/dev/block/platform/soc/by-name/vendor_a
+/dev/block/platform/soc/by-name/vendor_b
+/dev/block/platform/soc/by-name/userdata
+# Wipe the boot partitions last so that all partitions will be wiped
+# correctly even if the wiping process gets interrupted by a force boot.
+/dev/block/platform/soc/by-name/boot_a
+/dev/block/platform/soc/by-name/boot_b
+/dev/block/platform/soc/by-name/dt_a
+/dev/block/platform/soc/by-name/dt_b

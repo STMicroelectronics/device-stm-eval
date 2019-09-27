@@ -1,0 +1,6 @@
+/dev/block/platform/soc/by-name/userdata	/data		f2fs	noatime,nosuid,nodev,discard,reserve_root=32768,fsync_mode=nobarrier		latemount,wait,check,formattable,quota,reservedsize=128M
+/dev/block/platform/soc/by-name/misc		/misc		emmc	defaults		defaults
+/dev/block/zram0							none		swap	defaults		zramsize=20%,max_comp_streams=4
+
+/devices/platform/soc/*.usbh-ehci/usb*			auto		auto	defaults	voldmanaged=usb:auto,encryptable=userdata,noemulatedsd
+/devices/platform/soc/58005000.sdmmc/mmc_host*	auto		auto	defaults	voldmanaged=sdcard:auto,encryptable=userdata,noemulatedsd

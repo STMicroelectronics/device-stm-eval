@@ -1,0 +1,148 @@
+#
+# Copyright 2015 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# remind init order
+# 1. Run early-init commands.
+# 2. coldboot: Check that ueventd has populated /dev.
+# 3. Initialize property service’s internal data structures.
+# 4. Set up handler for keychords.
+# 5. Initialize the console and display startup text or image.
+# 6. Set up initial properties such as ro.serialno, ro.baseband, and ro.carrier.
+# 7. Run init commands.
+# 8. Run early-fs commands.
+# 9. Run fs commands.
+# 10. Run post-fs commands.
+# 11. Start the property service.
+# 12. Prepare to receive SIGCHLD signals.
+# 13. Make sure that the property service socket and SIGCHLD handler are ready.
+# 14. Run early-boot commands.
+# 15. Run boot commands.
+# 16. Run all property-triggered commands based on current property values.
+
+import /vendor/etc/init/hw/init.${ro.hardware}.usb.rc
+import /vendor/etc/init/hw/init.${ro.hardware}.network.rc
+import /vendor/etc/init/hw/init.${ro.hardware}.security.rc
+
+on early-init
+    mount debugfs debugfs /sys/kernel/debug mode=0755
+    chmod 0222 /sys/kernel/debug/tracing/trace_marker
+
+on init
+    # By default, primary storage is physical
+    setprop ro.vold.primary_physical 1
+
+    # create directory for mounting sdcard
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard0
+
+    # ZRAM setup
+    write /sys/block/zram0/comp_algorithm lz4
+    write /proc/sys/vm/page-cluster 0
+
+    # set rlimit of lockedmem to 8 MiB to meet eBFD requirments
+    setrlimit 8 8388608 8388608
+
+on fs
+    mount_all /vendor/etc/fstab.stm --early
+
+on post-fs
+    # load gpu kernel module
+    insmod /vendor/lib/modules/galcore.ko
+
+    # load other kernel modules asynchronously
+    start init_driver
+
+on late-fs
+    # Mount RW partitions which need run fsck
+    mount_all /vendor/etc/fstab.stm --late
+
+    # boot time fs tune
+    write /sys/block/mmcblk0/queue/read_ahead_kb 2048
+    write /sys/block/mmcblk0/queue/nr_requests 256
+
+    # watchdog daemon (started in secondary bootloader)
+    start watchdogd
+
+on post-fs-data
+    # Update properties
+    # write /dev/kmsg "update persist.vendor.* properties based on cmdline"
+    exec - root system -- /vendor/bin/initprop
+
+on zygote-start
+    # keep that at the end of on post-fs-data
+    # Set indication (checked by vold) that we have finished this action
+    setprop vold.post_fs_data_done 1
+
+on boot
+    # Wait the end of asynchronous kernel modules loading
+    wait_for_prop vendor.modules.ready 1
+
+    # Create NETMGR daemon socket area
+    mkdir /dev/socket/netmgr 0750 radio radio
+
+    # Access to atrace read tracing informations
+    chmod 0711 /sys/kernel/debug/tracing
+
+    # Access to copro firmware
+    chmod 0770 /sys/class/remoteproc/remoteproc0/firmware
+    chown system system /sys/class/remoteproc/remoteproc0/firmware
+    chmod 0770 /sys/class/remoteproc/remoteproc0/state
+    chown system system /sys/class/remoteproc/remoteproc0/state
+    chmod 0770 /sys/module/firmware_class/parameters/path
+    chown system system /sys/module/firmware_class/parameters/path
+
+    # add a cpuset for the camera daemon
+    mkdir /dev/cpuset/camera-daemon
+    write /dev/cpuset/camera-daemon/cpus 0-1
+    write /dev/cpuset/camera-daemon/mems 0
+    chown system system /dev/cpuset/camera-daemon
+    chown system system /dev/cpuset/camera-daemon/tasks
+    chmod 0664 /dev/cpuset/camera-daemon/tasks
+
+    # Access to leds
+    chown system system /sys/class/leds/orange/brightness
+    chmod 0664 /sys/class/leds/orange/brightness
+    chown system system /sys/class/leds/heartbeat/brightness
+    chmod 0664 /sys/class/leds/heartbeat/brightness
+
+on property:sys.boot_completed=1
+    swapon_all /vendor/etc/fstab.stm
+
+    write /sys/block/mmcblk0/queue/read_ahead_kb 128
+    write /sys/block/mmcblk0/queue/nr_requests 128
+
+    # update cpusets now that boot is complete and we want better load balancing
+    write /dev/cpuset/top-app/cpus 0-1
+    write /dev/cpuset/foreground/cpus 0-1
+    write /dev/cpuset/background/cpus 0
+    write /dev/cpuset/system-background/cpus 0-1
+
+# atrace (boot systrace)
+# see https://source.android.com/devices/tech/perf/boot-times#systrace
+#    write /d/tracing/tracing_on 0
+#    write /d/tracing/events/ext4/enable 0
+#    write /d/tracing/events/block/enable 0
+
+service init_driver /vendor/bin/initdriver
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+service watchdogd /sbin/watchdogd 10 20
+    class core
+    seclabel u:r:watchdogd:s0

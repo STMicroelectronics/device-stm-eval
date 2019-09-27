@@ -1,0 +1,8 @@
+# device specific syscalls
+clock_gettime: 1
+connect: 1
+sendto: 1
+fcntl64: 1
+socket: 1
+writev: 1
+
