@@ -49,9 +49,21 @@ TARGET_NO_DTIMAGE := false
 TARGET_NO_MISCIMAGE := false
 TARGET_NO_SPLASHIMAGE := false
 
-BOARD_USES_RECOVERY_AS_BOOT := true
-BOARD_BUILD_SYSTEM_ROOT_IMAGE = true
+# temporary for TEE build (to be removed)
+BUILD_BROKEN_PHONY_TARGETS := true
+
+# BOARD_USES_RECOVERY_AS_BOOT := true
 TARGET_USES_64_BIT_BINDER = true
+
+BOARD_SUPER_PARTITION_SIZE := ${STM32MP1_SUPER_PART_SIZE}
+BOARD_SUPER_PARTITION_GROUPS := stm32mp1_dynamic_partitions
+BOARD_STM32MP1_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product
+BOARD_STM32MP1_DYNAMIC_PARTITIONS_SIZE := ${STM32MP1_DYNAMIC_PART_SIZE}
+# BOARD_SUPER_PARTITION_METADATA_DEVICE := system
+# BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := ${STM32MP1_SYSTEM_PART_SIZE}
+# BOARD_SUPER_PARTITION_VENDOR_DEVICE_SIZE := ${STM32MP1_VENDOR_PART_SIZE}
+BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT := true
+BOARD_SUPER_IMAGE_IN_UPDATE_PACKAGE := true
 
 TARGET_RECOVERY_WIPE := device/stm/stm32mp1/$(BOARD_NAME)/recovery.wipe
 TARGET_RECOVERY_FSTAB := device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm
@@ -61,7 +73,7 @@ TARGET_RECOVERY_FSTAB := device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TY
 # BOARD_BOOTIMAGE_PARTITION_SIZE := ${STM32MP1_BOOT_PART_SIZE}
 
 # system.img
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := ${STM32MP1_SYSTEM_PART_SIZE}
+# BOARD_SYSTEMIMAGE_PARTITION_SIZE := ${STM32MP1_SYSTEM_PART_SIZE}
 BOARD_SYSTEMIMAGE_JOURNAL_SIZE := 0
 BOARD_SYSTEMIMAGE_EXTFS_INODE_COUNT := 4096
 
@@ -69,7 +81,6 @@ BOARD_SYSTEMIMAGE_EXTFS_INODE_COUNT := 4096
 TARGET_USERIMAGES_SPARSE_SQUASHFS_DISABLED := true
 ifeq ($(TARGET_USERIMAGES_SPARSE_SQUASHFS_DISABLED),false)
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := squashfs
-BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := squashfs
 endif
 
 # userdata.img
@@ -82,10 +93,18 @@ ifeq ($(TARGET_USERIMAGES_SPARSE_EXT_DISABLED),)
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := false
 endif
 
+# product.img
+BOARD_USES_PRODUCTIMAGE := true
+BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
+TARGET_COPY_OUT_PRODUCT := product
+
 # vendor.img
 BOARD_USES_VENDORIMAGE := true
-BOARD_VENDORIMAGE_PARTITION_SIZE := ${STM32MP1_VENDOR_PART_SIZE}
+# BOARD_VENDORIMAGE_PARTITION_SIZE := ${STM32MP1_VENDOR_PART_SIZE}
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+ifeq ($(TARGET_USERIMAGES_SPARSE_SQUASHFS_DISABLED),false)
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := squashfs
+endif
 TARGET_COPY_OUT_VENDOR := vendor
 
 # boot.img
@@ -103,19 +122,21 @@ AB_OTA_UPDATER := true
 AB_OTA_PARTITIONS += \
     boot \
     system \
-    vendor
+    vendor \
+    product
 
 # =========================================================== #
 # Kernel command line                                         #
 # =========================================================== #
 BOARD_KERNEL_CMDLINE := console=ttySTM0,115200 androidboot.console=ttySTM0 consoleblank=0
-BOARD_KERNEL_CMDLINE += skip_initramfs ro rootfstype=ext4 rootwait
+BOARD_KERNEL_CMDLINE += root=/dev/ram rw rootfstype=ext4 rootwait
 BOARD_KERNEL_CMDLINE += init=/init firmware_class.path=/vendor/firmware
 BOARD_KERNEL_CMDLINE += androidboot.hardware=stm
 
 ifneq ($(TARGET_BUILD_VARIANT),user)
 
-BOARD_KERNEL_CMDLINE += loglevel=4
+BOARD_KERNEL_CMDLINE += loglevel=8
+BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 
 # Enable graphic trace (graphic allocator and drm)
@@ -125,9 +146,13 @@ BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 # Enable dynamic debug (for file) on boot (change <path_to_file> by required kernel file)
 # BOARD_KERNEL_CMDLINE += dyndbg=\"file <path_to_file> +p\"
 
-# Enable systrace on boot (atrace)
-# BOARD_KERNEL_CMDLINE +=trace_buf_size=32M
-# BOARD_KERNEL_CMDLINE +=trace_event=sched_wakeup,sched_switch,sched_blocked_reason,sched_cpu_hotplug,am,wm,sm
+# Enable atrace on boot for task scheduling
+# BOARD_KERNEL_CMDLINE +=trace_buf_size=64M
+# BOARD_KERNEL_CMDLINE +=trace_event=sched_wakeup,sched_switch,sched_blocked_reason
+
+# Enable atrace on boot for I/O analysis
+# BOARD_KERNEL_CMDLINE +=trace_buf_size=64M
+# BOARD_KERNEL_CMDLINE +=trace_event=block,ext4
 
 # Enable early print in console on boot
 # BOARD_KERNEL_CMDLINE += earlyprintk
@@ -149,9 +174,9 @@ ifeq ($(BOARD_WLAN_INTERFACE), wlan0)
 BOARD_WLAN_DEVICE := stm
 WPA_SUPPLICANT_VERSION := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-#BOARD_WPA_SUPPLICANT_PRIVATE_LIB :=
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_stm
 BOARD_HOSTAPD_DRIVER := NL80211
-#BOARD_HOSTAPD_PRIVATE_LIB :=
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_stm
 #WIFI_DRIVER_FW_PATH_AP := "/vendor/etc/firmware/htc_9271.fw"
 #WIFI_DRIVER_FW_PATH_STA := "/vendor/etc/firmware/htc_9271.fw"
 #WIFI_DRIVER_FW_PATH_P2P := "/vendor/etc/firmware/htc_9271.fw"

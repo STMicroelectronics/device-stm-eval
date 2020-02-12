@@ -49,20 +49,13 @@ Return<void> DumpstateDevice::dumpstateBoard(const hidl_handle& handle) {
         return Void();
     }
 
-    /* CPU 0 Info */
-    DumpFileToFd(fd, "A7-CPU0 Scaling Min. Freq.", "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
-    RunCommandToFd(fd, "A7-CPU0 Scaling Max. Freq.", {"/system/bin/sh", "-c", "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"}, CommandOptions::AS_ROOT);
-    RunCommandToFd(fd, "A7-CPU0 Scaling Governor", {"/system/bin/sh", "-c", "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"}, CommandOptions::AS_ROOT);
-    RunCommandToFd(fd, "A7-CPU0 OPP List", {"/system/bin/sh", "-c", "ls /sys/kernel/debug/opp/cpu0"}, CommandOptions::AS_ROOT);
-
-    /* CPU 1 Info */
-    DumpFileToFd(fd, "A7-CPU1 Scaling Min. Freq.", "/sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq");
-    RunCommandToFd(fd, "A7-CPU1 Scaling Max. Freq.", {"/system/bin/sh", "-c", "cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq"}, CommandOptions::AS_ROOT);
-    RunCommandToFd(fd, "A7-CPU1 Scaling Governor", {"/system/bin/sh", "-c", "cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor"}, CommandOptions::AS_ROOT);
-    RunCommandToFd(fd, "A7-CPU1 OPP List", {"/system/bin/sh", "-c", "ls /sys/kernel/debug/opp/cpu1"}, CommandOptions::AS_ROOT);
+    /* CPU Info */
+    DumpFileToFd(fd, "A7-CPU scaling current frequency", "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq");
+    DumpFileToFd(fd, "A7-CPU scaling governor", "/sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+    DumpFileToFd(fd, "A7-CPU available frequencies", "/sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies");
 
     /* IO Memory mapping */
-    RunCommandToFd(fd, "Proc. IOMEM.", {"/system/bin/sh", "-c", "cat /proc/iomem"}, CommandOptions::AS_ROOT);
+    RunCommandToFd(fd, "Proc. IOMEM.", {"/vendor/bin/sh", "-c", "cat /proc/iomem"}, CommandOptions::AS_ROOT);
 
     /* Interrupts List */
     DumpFileToFd(fd, "Proc. Interrupts", "/proc/interrupts");
@@ -80,7 +73,7 @@ Return<void> DumpstateDevice::dumpstateBoard(const hidl_handle& handle) {
     DumpFileToFd(fd, "PINCtrl", "/sys/kernel/debug/pinctrl/pinctrl-handles");
 
     /* PINs Configs */
-    RunCommandToFd(fd, "PINs config.", {"/system/bin/sh", "-c", "for p in $(ls -d /sys/kernel/debug/pinctrl/*/); do echo -s \"$p: `cat $p/pinconf-pins`\"; done"}, CommandOptions::AS_ROOT);
+    RunCommandToFd(fd, "PINs config.", {"/vendor/bin/sh", "-c", "for p in $(ls -d /sys/kernel/debug/pinctrl/*/); do echo -s \"$p: `cat $p/pinconf-pins`\"; done"}, CommandOptions::AS_ROOT);
 
     return Void();
 }

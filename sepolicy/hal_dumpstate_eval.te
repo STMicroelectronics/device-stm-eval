@@ -4,4 +4,4 @@ hal_server_domain(hal_dumpstate_eval, hal_dumpstate)
 type hal_dumpstate_eval_exec, exec_type, file_type, vendor_file_type;
 init_daemon_domain(hal_dumpstate_eval)
 
-
+allow hal_dumpstate_eval dumpstate:fifo_file write;

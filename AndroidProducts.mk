@@ -16,3 +16,8 @@
 
 PRODUCT_MAKEFILES := \
     $(LOCAL_DIR)/aosp_eval.mk
+
+COMMON_LUNCH_CHOICES := \
+    aosp_eval-eng \
+    aosp_eval-userdebug \
+    aosp_eval-user

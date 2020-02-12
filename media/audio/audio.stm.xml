@@ -34,6 +34,12 @@
             <ctl name="IN1L PGA IN1LN Switch" val="1"/>
             <ctl name="MIXINL IN1L Volume" val="1"/>
             <ctl name="IN1L Switch" val="1"/>
+
+            <!-- Disable switches by default -->
+            <ctl name="Speaker Switch" val="0"/>
+            <ctl name="Speaker Volume" val="0"/>
+            <ctl name="Headphone Switch" val="0"/>
+            <ctl name="Headphone Volume" val="0"/>
         </init>
     </mixer>
 

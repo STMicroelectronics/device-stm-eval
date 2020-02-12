@@ -14,8 +14,12 @@
 # limitations under the License.
 #
 
+$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
+
 PRODUCT_CHARACTERISTICS := nosdcard
-PRODUCT_SHIPPING_API_LEVEL = 28
+PRODUCT_SHIPPING_API_LEVEL = 29
+
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
 BOARD_USES_TINYHAL_AUDIO := true
 USE_XML_AUDIO_POLICY_CONF := 1
@@ -48,6 +52,10 @@ TARGET_POWER_HAL := default
 
 PRODUCT_PACKAGES += \
 	watchdogd
+
+# Android Live-LocK Daemon (catch kernel deadlocks and mitigate). Useful for VTS
+#PRODUCT_PACKAGES += \
+#	llkd
 
 # BOOT CONTROL HAL package
 PRODUCT_PACKAGES += \
@@ -109,7 +117,8 @@ endif
 
 # WIFI HAL
 PRODUCT_PACKAGES += \
-	libwifi-hal-stm
+	libwifi-hal-stm \
+	lib_driver_cmd_stm
 
 # GRALLOC HAL module
 PRODUCT_PACKAGES += \
@@ -158,11 +167,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.config.wallpaper=/data/wallpaper.bmp
 
 # fstab
-PRODUCT_COPY_FILES += device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.stm
+PRODUCT_COPY_FILES += \
+	device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm:$(TARGET_COPY_OUT_RAMDISK)/fstab.stm \
+	device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.stm
 
 # Wireless configuration
 PRODUCT_COPY_FILES += \
-	device/stm/stm32mp1/$(BOARD_NAME)/network/wifi/wpa_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant.conf \
 	device/stm/stm32mp1/$(BOARD_NAME)/network/wifi/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf \
 	device/stm/stm32mp1/$(BOARD_NAME)/network/wifi/p2p_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant_overlay.conf \
 	device/stm/stm32mp1/$(BOARD_NAME)/firmware/rtlwifi/rtl8723aufw_A.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/rtlwifi/rtl8723aufw_A.bin \
@@ -187,7 +197,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp1/$(BOARD_NAME)/media/media_codecs.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs.xml \
 	device/stm/stm32mp1/$(BOARD_NAME)/media/media_codecs_performance.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_performance.xml \
-	device/stm/stm32mp1/$(BOARD_NAME)/media/media_profiles.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles.xml \
+	device/stm/stm32mp1/$(BOARD_NAME)/media/media_profiles.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles_V1_0.xml \
 	device/stm/stm32mp1/$(BOARD_NAME)/media/video/media_codecs_google_video_limited.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video_limited.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_audio.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_telephony.xml
@@ -200,11 +210,11 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	android.hardware.graphics.allocator@2.0-service \
 	android.hardware.graphics.allocator@2.0-impl \
-	android.hardware.graphics.mapper@2.0-impl \
+	android.hardware.graphics.mapper@2.0-impl-2.1 \
 	android.hardware.graphics.composer@2.1-impl \
 	android.hardware.graphics.composer@2.1-service \
-	android.hardware.configstore@1.0-impl \
-	android.hardware.configstore@1.0-service
+	android.hardware.configstore@1.1-impl \
+	android.hardware.configstore@1.1-service
 
 # Boot hardware service
 PRODUCT_PACKAGES += \
@@ -227,9 +237,8 @@ PRODUCT_PACKAGES += \
 # Audio hardware service
 PRODUCT_PACKAGES += \
 	android.hardware.audio@2.0-service \
-	android.hardware.audio@4.0-impl \
-	android.hardware.audio.effect@4.0-impl \
-	android.hardware.soundtrigger@2.1-impl \
+	android.hardware.audio@5.0-impl \
+	android.hardware.audio.effect@5.0-impl \
 	libaudio-resampler \
 	libeffects
 
@@ -265,7 +274,7 @@ PRODUCT_PACKAGES += \
 
 # Health hardware service
 PRODUCT_PACKAGES += \
-	android.hardware.health@2.0-service.stm32mp1
+	android.hardware.health@2.0-service.stm32mp1.$(BOARD_DISK_TYPE)
 
 # TEE hardware service
 PRODUCT_PACKAGES += \
@@ -333,7 +342,8 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	libwpa_client \
 	hostapd \
-	wpa_supplicant
+	wpa_supplicant \
+	wpa_supplicant.conf
 
 PRODUCT_PACKAGES += \
 	wificond \
@@ -361,6 +371,9 @@ PRODUCT_PACKAGES += \
 
 # Set product properties
 
+PRODUCT_PROPERTY_OVERRIDES += \
+ro.sys.sdcardfs=1
+
 # Allows healthd to boot directly from charger mode rather than initiating a reboot.
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	ro.enable_boot_charger_mode=1
@@ -378,7 +391,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # HWC disable overlay planes usage
 PRODUCT_PROPERTY_OVERRIDES += \
-	hwc.drm.use_overlay_planes=0
+	vendor.hwc.drm.use_overlay_planes=0
 
 # USB ADB configuration
 ifeq ($(TARGET_BUILD_VARIANT),user)
@@ -413,11 +426,25 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 ifneq ($(BOARD_OPTION),empty)
 
+# ST Launcher application (can be replaced by Launcher3Go if required)
+PRODUCT_PACKAGES += \
+	STLauncher
+
+PRODUCT_DEXPREOPT_SPEED_APPS += \
+	STLauncher
+
 # ST base applications
 PRODUCT_PACKAGES += \
 	STVideo \
-	STPerf \
-	STCamera
+	STCamera \
+	STAudio
+
+PRODUCT_DEXPREOPT_SPEED_APPS += \
+	SystemUI \
+	Settings \
+	STVideo \
+	STCamera \
+	STAudio
 
 # ST Copro firmwares
 PRODUCT_COPY_FILES += \
@@ -429,26 +456,27 @@ PRODUCT_PACKAGES += \
 	STCoproM4Echo \
 	STCoproM4Example
 
+# Integrate STPerf only in debug build (need permissive)
+ifneq ($(TARGET_BUILD_VARIANT),user)
+
+PRODUCT_PACKAGES += \
+	STPerf
+
 PRODUCT_DEXPREOPT_SPEED_APPS += \
-	SystemUI \
-	Settings \
-	STVideo \
-	STPerf \
-	STCamera
+	STPerf
+
+endif
 
 else
+
+PRODUCT_PACKAGES += \
+	Launcher3Go
 
 PRODUCT_DEXPREOPT_SPEED_APPS += \
 	SystemUI \
 	Settings
 
 endif
-
-PRODUCT_PACKAGES += \
-	Launcher3Go
-
-PRODUCT_DEXPREOPT_SPEED_APPS += \
-	Launcher3Go
 
 #SDK
 ifneq ($(filter sdk win_sdk sdk_addon,$(MAKECMDGOALS)),)

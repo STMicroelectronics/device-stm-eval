@@ -4,7 +4,7 @@ This module contains the STMicroelectronics configuration for Android used to ge
 
 It is part of the STMicroelectronics delivery for Android (see the [delivery][] for more information).
 
-[delivery]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v1.0.0
+[delivery]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v1.1.0
 
 The STM32MP15 Evaluation boards integrate a STMicroelectronics STM32MP1 chip.
 
@@ -21,7 +21,7 @@ Please see the Android delivery release notes for more details.
 * The [release notes][] document the information on the release.
 * The [distribution package][] provides detailed information on how to use this delivery.
 
-[release notes]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v1.0.0
+[release notes]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v1.1.0
 [distribution package]: https://wiki.st.com/stm32mpu/wiki/STM32MP1_Distribution_Package_for_Android
 
 ## Dependencies ##
@@ -31,9 +31,6 @@ This module can't be used alone. It is part of the STMicroelectronics delivery f
 ## Containing ##
 
 This module contains several files and directories.
-
-**Product profiles:**
-* `boardsetup.sh`: list supported product profiles for this board device
 
 **Makefiles:**
 * `AndroidBoard.mk`: include kernel makefile

@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-ifneq ($(filter %eval%, $(TARGET_PRODUCT)),)
+ifneq ($(filter %eval, $(TARGET_PRODUCT)),)
 
 LOCAL_PATH := $(call my-dir)
 

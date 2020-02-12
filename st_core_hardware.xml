@@ -34,6 +34,7 @@
 
     <!-- basic system services -->
     <feature name="android.software.home_screen" />
+    <feature name="android.software.secure_lock_screen" />
 
     <!-- device administration -->
     <feature name="android.software.device_admin" />
