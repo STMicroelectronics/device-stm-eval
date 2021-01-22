@@ -18,9 +18,17 @@
 
 #include "DumpstateDevice.h"
 
+#include <android-base/properties.h>
+#include <android-base/unique_fd.h>
+#include <cutils/properties.h>
+#include <hidl/HidlBinderSupport.h>
+#include <hidl/HidlSupport.h>
+
 #include <log/log.h>
 
 #include "DumpstateUtil.h"
+
+#define VENDOR_VERBOSE_LOGGING_ENABLED_PROPERTY "persist.vendor.verbose_logging_enabled"
 
 using android::os::dumpstate::CommandOptions;
 using android::os::dumpstate::DumpFileToFd;
@@ -29,57 +37,120 @@ using android::os::dumpstate::RunCommandToFd;
 namespace android {
 namespace hardware {
 namespace dumpstate {
-namespace V1_0 {
+namespace V1_1 {
 namespace implementation {
+
+static void DumpCpu(int fd) {
+    const std::string dir = "/sys/devices/system/cpu/cpufreq/policy0/";
+    const std::vector<std::string> files {
+        "scaling_cur_freq",
+        "scaling_governor",
+        "scaling_available_frequencies",
+    };
+
+    for (const auto &file : files) {
+        DumpFileToFd(fd, "A7-CPU "+file , dir+file);
+    }
+}
 
 // Methods from ::android::hardware::dumpstate::V1_0::IDumpstateDevice follow.
 Return<void> DumpstateDevice::dumpstateBoard(const hidl_handle& handle) {
-    // NOTE: this is just an example on how to use the DumpstateUtil.h functions to implement
-    // this interface - since HIDL_FETCH_IDumpstateDevice() is not defined, this function will never
-    // be called by dumpstate.
+    // Ignore return value, just return an empty status.
+    dumpstateBoard_1_1(handle, DumpstateMode::DEFAULT, 30 * 1000 /* timeoutMillis */);
+    return Void();
+}
+
+// Methods from ::android::hardware::dumpstate::V1_1::IDumpstateDevice follow.
+Return<DumpstateStatus> DumpstateDevice::dumpstateBoard_1_1(const hidl_handle& handle,
+                                                            const DumpstateMode mode,
+                                                            const uint64_t timeoutMillis) {
+
+    // Unused arguments.
+    (void) timeoutMillis;
+
+    // Exit when dump is completed since this is a lazy HAL.
+    addPostCommandTask([]() {
+        exit(0);
+    });
 
     if (handle == nullptr || handle->numFds < 1) {
         ALOGE("no FDs\n");
-        return Void();
+        return DumpstateStatus::ILLEGAL_ARGUMENT;
     }
 
     int fd = handle->data[0];
     if (fd < 0) {
         ALOGE("invalid FD: %d\n", handle->data[0]);
-        return Void();
+        return DumpstateStatus::ILLEGAL_ARGUMENT;
     }
 
+    bool isModeValid = false;
+    for (const auto dumpstateMode : hidl_enum_range<DumpstateMode>()) {
+        if (mode == dumpstateMode) {
+            isModeValid = true;
+            break;
+        }
+    }
+    if (!isModeValid) {
+        ALOGE("Invalid mode: %d\n", mode);
+        return DumpstateStatus::ILLEGAL_ARGUMENT;
+    } else if (mode == DumpstateMode::WEAR) {
+        // We aren't a Wear device.
+        ALOGE("Unsupported mode: %d\n", mode);
+        return DumpstateStatus::UNSUPPORTED_MODE;
+    }
+
+    /* Properties */
+    RunCommandToFd(fd, "VENDOR PROPERTIES", {"/vendor/bin/getprop"});
+
     /* CPU Info */
-    DumpFileToFd(fd, "A7-CPU scaling current frequency", "/sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq");
-    DumpFileToFd(fd, "A7-CPU scaling governor", "/sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
-    DumpFileToFd(fd, "A7-CPU available frequencies", "/sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies");
+    DumpCpu(fd);
+
+    /* Temperature */
+    RunCommandToFd(fd, "TEMPERATURE", {"/vendor/bin/sh", "-c", "for f in /sys/class/thermal/thermal_zone* ; do type=`cat $f/type` ; temp=`cat $f/temp` ; echo \"$type: $temp\" ; done"});
 
     /* IO Memory mapping */
-    RunCommandToFd(fd, "Proc. IOMEM.", {"/vendor/bin/sh", "-c", "cat /proc/iomem"}, CommandOptions::AS_ROOT);
+    RunCommandToFd(fd, "IOMEM", {"/vendor/bin/sh", "-c", "cat /proc/iomem"}, CommandOptions::AS_ROOT);
+
+    /* Memory Info */
+    DumpFileToFd(fd, "MEMORY INFO", "/proc/meminfo");
 
     /* Interrupts List */
-    DumpFileToFd(fd, "Proc. Interrupts", "/proc/interrupts");
+    DumpFileToFd(fd, "INTERRUPTS", "/proc/interrupts");
+
+#ifdef DEBUGFS
 
     /* GPIOs config */
-    DumpFileToFd(fd, "GPIOs", "/sys/kernel/debug/gpio");
+    DumpFileToFd(fd, "GPIOS", "/sys/kernel/debug/gpio");
 
     /* Clocks config */
-    DumpFileToFd(fd, "CLKs", "/sys/kernel/debug/clk/clk_summary");
+    DumpFileToFd(fd, "CLOCKS", "/sys/kernel/debug/clk/clk_summary");
 
     /* Regulator config */
-    DumpFileToFd(fd, "Regulators", "/sys/kernel/debug/regulator/regulator_summary");
+    DumpFileToFd(fd, "REGULATORS", "/sys/kernel/debug/regulator/regulator_summary");
 
     /* Pin Ctrl config */
-    DumpFileToFd(fd, "PINCtrl", "/sys/kernel/debug/pinctrl/pinctrl-handles");
+    DumpFileToFd(fd, "PIN CONTROL", "/sys/kernel/debug/pinctrl/pinctrl-handles");
 
     /* PINs Configs */
-    RunCommandToFd(fd, "PINs config.", {"/vendor/bin/sh", "-c", "for p in $(ls -d /sys/kernel/debug/pinctrl/*/); do echo -s \"$p: `cat $p/pinconf-pins`\"; done"}, CommandOptions::AS_ROOT);
+    RunCommandToFd(fd, "PIN CONFIG", {"/vendor/bin/sh", "-c", "for p in $(ls -d /sys/kernel/debug/pinctrl/*/); do echo -s \"$p: `cat $p/pinconf-pins`\"; done"}, CommandOptions::AS_ROOT);
 
+#endif
+
+    return DumpstateStatus::OK;
+}
+
+Return<void> DumpstateDevice::setVerboseLoggingEnabled(const bool enable) {
+    android::base::SetProperty(VENDOR_VERBOSE_LOGGING_ENABLED_PROPERTY, enable ? "true" : "false");
     return Void();
 }
 
+Return<bool> DumpstateDevice::getVerboseLoggingEnabled() {
+    return android::base::GetBoolProperty(VENDOR_VERBOSE_LOGGING_ENABLED_PROPERTY, false);
+}
+
 }  // namespace implementation
-}  // namespace V1_0
+}  // namespace V1_1
 }  // namespace dumpstate
 }  // namespace hardware
 }  // namespace android

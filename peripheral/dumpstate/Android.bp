@@ -13,8 +13,8 @@
 // limitations under the License.
 
 cc_binary {
-    name: "android.hardware.dumpstate@1.0-service.eval",
-    init_rc: ["android.hardware.dumpstate@1.0-service.eval.rc"],
+    name: "android.hardware.dumpstate@1.1-service.eval",
+    init_rc: ["android.hardware.dumpstate@1.1-service.eval.rc"],
     relative_install_path: "hw",
     proprietary: true,
 
@@ -23,13 +23,21 @@ cc_binary {
         "service.cpp",
     ],
 
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DDEBUGFS=1",
+            ],
+        },
+    },
+
     shared_libs: [
         "android.hardware.dumpstate@1.0",
+        "android.hardware.dumpstate@1.1",
         "libbase",
         "libcutils",
         "libdumpstateutil",
         "libhidlbase",
-        "libhidltransport",
         "liblog",
         "libutils",
     ],

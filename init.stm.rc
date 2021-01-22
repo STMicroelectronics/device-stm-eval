@@ -37,17 +37,47 @@ import /vendor/etc/init/hw/init.${ro.hardware}.network.rc
 import /vendor/etc/init/hw/init.${ro.hardware}.security.rc
 
 on early-init
+    # debugfs not available in user build
     mount debugfs debugfs /sys/kernel/debug mode=0755
-    chmod 0222 /sys/kernel/debug/tracing/trace_marker
 
 on init
-    # create directory for mounting sdcard
-    symlink /sdcard /mnt/sdcard
-    symlink /sdcard /storage/sdcard0
-
     # ZRAM setup
     write /sys/block/zram0/comp_algorithm lz4
     write /proc/sys/vm/page-cluster 0
+
+    # Create a cpuset for camera-specific processes
+    mkdir /dev/cpuset/camera-daemon
+    write /dev/cpuset/camera-daemon/cpus 0-1
+    chown system system /dev/cpuset/camera-daemon
+    chown system system /dev/cpuset/camera-daemon/tasks
+    chmod 0664 /dev/cpuset/camera-daemon/tasks
+
+    # Create scheduler tuning nodes
+    mkdir /dev/cpuctl/background
+    mkdir /dev/cpuctl/foreground
+    mkdir /dev/cpuctl/top-app
+
+    chown system system /dev/cpuctl/background
+    chown system system /dev/cpuctl/background/tasks
+    chown system system /dev/cpuctl/foreground
+    chown system system /dev/cpuctl/foreground/tasks
+    chown system system /dev/cpuctl/top-app
+    chown system system /dev/cpuctl/top-app/tasks
+    chmod 0664 /dev/cpuctl/background/tasks
+    chmod 0664 /dev/cpuctl/foreground/tasks
+    chmod 0664 /dev/cpuctl/top-app/tasks
+
+    chown system system /dev/cpuctl/top-app/cpu.uclamp.min
+    chown system system /dev/cpuctl/top-app/cpu.uclamp.max
+    chown system system /dev/cpuctl/background/cpu.uclamp.min
+    chown system system /dev/cpuctl/background/cpu.uclamp.max
+    chown system system /dev/cpuctl/foreground/cpu.uclamp.min
+    chown system system /dev/cpuctl/foreground/cpu.uclamp.max
+
+    write /dev/cpuctl/top-app/cpu.uclamp.min 10
+    write /dev/cpuctl/foreground/cpu.uclamp.min 10
+    write /dev/cpuctl/background/cpu.uclamp.min 0
+    write /dev/cpuctl/background/cpu.uclamp.max 30
 
     # Create UDS structure for base VR services
     mkdir /dev/socket/pdx 0775 system system
@@ -59,26 +89,25 @@ on init
     mkdir /dev/socket/pdx/system/vr/pose 0775 system system
     mkdir /dev/socket/pdx/system/vr/sensors 0775 system system
 
-    # Access to leds
+    # Access to leds and backlight
     chown system system /sys/class/leds/red/brightness
+    chown system system /sys/class/leds/red/trigger
+    chown system system /sys/class/leds/red/max_brightness
     chmod 0664 /sys/class/leds/red/brightness
+    chmod 0664 /sys/class/leds/red/trigger
+    chmod 0444 /sys/class/leds/red/max_brightness
+
     chown system system /sys/class/leds/heartbeat/brightness
+    chown system system /sys/class/leds/heartbeat/trigger
+    chown system system /sys/class/leds/heartbeat/max_brightness
     chmod 0664 /sys/class/leds/heartbeat/brightness
+    chmod 0664 /sys/class/leds/heartbeat/trigger
+    chmod 0444 /sys/class/leds/heartbeat/max_brightness
 
-    # set rlimit of lockedmem to 8 MiB to meet eBFD requirments
-    setrlimit 8 8388608 8388608
-
-    # configure stune (no energy aware scheduling), for futur usage
-    write /dev/stune/foreground/schedtune.prefer_idle 1
-    write /dev/stune/top-app/schedtune.prefer_idle 1
-    write /dev/stune/background/schedtune.prefer_idle 1
-    write /dev/stune/rt/schedtune.prefer_idle 1
-
-    # update cpusets for boot phase (no restriction)
-    write /dev/cpuset/top-app/cpus 0-1
-    write /dev/cpuset/foreground/cpus 0-1
-    write /dev/cpuset/background/cpus 0-1
-    write /dev/cpuset/system-background/cpus 0-1
+    chown system system /sys/class/backlight/panel-backlight/brightness
+    chown system system /sys/class/backlight/panel-backlight/max_brightness
+    chmod 0664 /sys/class/backlight/panel-backlight/brightness
+    chmod 0444 /sys/class/backlight/panel-backlight/max_brightness
 
     # boot time io tuning
     write /sys/block/mmcblk0/queue/iostats 0
@@ -97,17 +126,22 @@ on fs
     mount_all /vendor/etc/fstab.stm --early
 
 on post-fs
+    # set rlimit of lockedmem (RLIMIT_MEMLOCK) to 8 MiB to meet eBFD requirments
+    setrlimit memlock 8388608 8388608
+
     # load gpu kernel module
     insmod /vendor/lib/modules/galcore.ko
 
     # load other kernel modules asynchronously
     start init_driver
 
+    # bugreport purpose
+    chmod 0440 /proc/pagetypeinfo
+
 on late-fs
     start surfaceflinger
     start bootanim
     start vendor.hwcomposer-2-1
-    start vendor.configstore-hal
     start vendor.gralloc-2-0
 
     wait_for_prop hwservicemanager.ready true
@@ -129,9 +163,6 @@ on boot
     # Create NETMGR daemon socket area
     mkdir /dev/socket/netmgr 0750 radio radio
 
-    # Access to atrace read tracing informations
-    chmod 0711 /sys/kernel/debug/tracing
-
     # Access to copro firmware
     chmod 0770 /sys/class/remoteproc/remoteproc0/firmware
     chown system system /sys/class/remoteproc/remoteproc0/firmware
@@ -140,22 +171,13 @@ on boot
     chmod 0770 /sys/module/firmware_class/parameters/path
     chown system system /sys/module/firmware_class/parameters/path
 
-    # add a cpuset for the camera daemon
-    mkdir /dev/cpuset/camera-daemon
-    mkdir /dev/cpuset/camera-daemon/tasks
-    write /dev/cpuset/camera-daemon/cpus 0-1
-    write /dev/cpuset/camera-daemon/mems 0
-    chown system system /dev/cpuset/camera-daemon
-    chown system system /dev/cpuset/camera-daemon/tasks
-    chmod 0664 /dev/cpuset/camera-daemon/tasks
-
     # Change CPU freq access rights (used by STPerf application)
     chmod 0444 /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq
     chmod 0444 /sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies
 
 on property:sys.boot_completed=1
-    write /dev/kmsg "BootAnalyze: boot completed"
     swapon_all /vendor/etc/fstab.stm
+    write /proc/sys/vm/swappiness 100
 
     write /sys/block/mmcblk0/queue/iostats 1
     write /sys/block/mmcblk1/queue/iostats 1
@@ -168,14 +190,22 @@ on property:sys.boot_completed=1
     write /sys/block/dm-1/queue/read_ahead_kb 256
     write /sys/block/dm-2/queue/read_ahead_kb 256
 
-    # update cpusets now that boot is complete and we want better load balancing
+    # limit background tasks to one cpu
+    write /dev/cpuset/top-app/cpus 0-1
+    write /dev/cpuset/foreground/cpus 0-1
     write /dev/cpuset/background/cpus 0
+    write /dev/cpuset/system-background/cpus 0-1
+    write /dev/cpuset/restricted/cpus 0-1
+
+on property:sys.boot_completed=1 && property:ro.debuggable=1
+    write /dev/kmsg "BootAnalyze: boot completed"
 
 # atrace (boot systrace)
 # see https://source.android.com/devices/tech/perf/boot-times#systrace
-#    write /d/tracing/tracing_on 0
-#    write /d/tracing/events/ext4/enable 0
-#    write /d/tracing/events/block/enable 0
+#     write /d/tracing/tracing_on 0
+#     write /d/tracing/events/ext4/enable 0
+#     write /d/tracing/events/f2fs/enable 0
+#     write /d/tracing/events/block/enable 0
 
 service init_driver /vendor/bin/initdriver
     class main
@@ -184,6 +214,8 @@ service init_driver /vendor/bin/initdriver
     disabled
     oneshot
 
-service watchdogd /sbin/watchdogd 10 20
+# Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
+service watchdogd /system/bin/watchdogd 10 20
     class core
+    oneshot
     seclabel u:r:watchdogd:s0

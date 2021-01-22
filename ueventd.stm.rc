@@ -1,37 +1,37 @@
-/dev/video0                0666   media   media
-/dev/video1                0666   media   media
-/dev/video2                0666   media   media
-/dev/video3                0666   media   media
+/dev/video0                0666   media     media
+/dev/video1                0666   media     media
+/dev/video2                0666   media     media
+/dev/video3                0666   media     media
 
 # 2 HD camera Max
-/dev/video4                0777   media   system
-/dev/video5                0777   media   system
+/dev/video4                0777   media     system
+/dev/video5                0777   media     system
 
 # GPU
-/dev/graphics/galcore      0666 system graphics
-/dev/galcore               0666 system graphics
-/dev/ion                   0666 system graphics
-/dev/sw_sync               0666 system graphics
-/dev/dri/card*             0666 system graphics
-/dev/dri/renderD*          0666 system graphics
-/dev/dri/control*          0666 system graphics
+/dev/graphics/galcore      0666   system    graphics
+/dev/galcore               0666   system    graphics
+/dev/ion                   0666   system    graphics
+/dev/sw_sync               0666   system    graphics
+/dev/dri/card*             0666   system    graphics
+/dev/dri/renderD*          0666   system    graphics
+/dev/dri/control*          0666   system    graphics
 
 # TEE
-/dev/tee0                  0660 system system
-/dev/teepriv0              0660 system system
+/dev/tee0                  0660   system    system
+/dev/teepriv0              0660   system    system
 
 # BT Realtek
-/dev/rtk_btusb             0660   bluetooth   bluetooth
+/dev/rtk_btusb             0660   bluetooth bluetooth
 
 # RFKILL
-/dev/rfkill                0660 system system
+/dev/rfkill                0660   system    system
 
 # Copro
-/dev/ttyRPMSG0             0770 system system
+/dev/ttyRPMSG0             0770   system    system
 
-#sensor sound trigger
-/dev/st_sound_trigger 0666 system system
+# Sensor sound trigger
+/dev/st_sound_trigger      0666   system    system
 
-#common char device files
-/dev/iio:device* 0666 system system
-/dev/input/event* 0666 system system
+# Common char device files
+/dev/iio:device*           0666   system    system
+/dev/input/event*          0666   system    system

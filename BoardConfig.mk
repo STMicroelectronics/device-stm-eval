@@ -23,20 +23,18 @@ TARGET_BOARD_INFO_FILE := device/stm/stm32mp1/$(BOARD_NAME)/board-info.txt
 # =========================================================== #
 # Enable dex pre-opt to speed up initial boot                 #
 # =========================================================== #
-ifeq ($(HOST_OS),linux)
-  ifeq ($(WITH_DEXPREOPT),)
-    WITH_DEXPREOPT := true
-    WITH_DEXPREOPT_PIC := true
-    ifneq ($(TARGET_BUILD_VARIANT),user)
-      # Retain classes.dex in APK's for non-user builds
-      DEX_PREOPT_DEFAULT := nostripping
-    endif
+ifeq ($(WITH_DEXPREOPT),)
+  WITH_DEXPREOPT := true
+  ifneq ($(TARGET_BUILD_VARIANT),user)
+    # Retain classes.dex in APK's for non-user builds
+    DEX_PREOPT_DEFAULT := nostripping
   endif
 endif
 
 # =========================================================== #
 # Images and partitions                                       #
 # =========================================================== #
+TARGET_FS_CONFIG_GEN := device/stm/stm32mp1/$(BOARD_NAME)/config.fs
 
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_FSBLIMAGE := false
@@ -48,16 +46,13 @@ TARGET_NO_RADIOIMAGE := true
 TARGET_NO_DTIMAGE := false
 TARGET_NO_MISCIMAGE := false
 TARGET_NO_SPLASHIMAGE := false
+TARGET_NO_TEEFSIMAGE := false
 
-# temporary for TEE build (to be removed)
-BUILD_BROKEN_PHONY_TARGETS := true
-
-# BOARD_USES_RECOVERY_AS_BOOT := true
 TARGET_USES_64_BIT_BINDER = true
 
 BOARD_SUPER_PARTITION_SIZE := ${STM32MP1_SUPER_PART_SIZE}
 BOARD_SUPER_PARTITION_GROUPS := stm32mp1_dynamic_partitions
-BOARD_STM32MP1_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product
+BOARD_STM32MP1_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product
 BOARD_STM32MP1_DYNAMIC_PARTITIONS_SIZE := ${STM32MP1_DYNAMIC_PART_SIZE}
 # BOARD_SUPER_PARTITION_METADATA_DEVICE := system
 # BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := ${STM32MP1_SYSTEM_PART_SIZE}
@@ -70,12 +65,15 @@ TARGET_RECOVERY_FSTAB := device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TY
 
 # enable AVB
 # BOARD_AVB_ENABLE := true
-# BOARD_BOOTIMAGE_PARTITION_SIZE := ${STM32MP1_BOOT_PART_SIZE}
 
 # system.img
-# BOARD_SYSTEMIMAGE_PARTITION_SIZE := ${STM32MP1_SYSTEM_PART_SIZE}
 BOARD_SYSTEMIMAGE_JOURNAL_SIZE := 0
 BOARD_SYSTEMIMAGE_EXTFS_INODE_COUNT := 4096
+
+# system_ext.img
+BOARD_USES_SYSTEM_EXTIMAGE := true
+BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := ext4
+TARGET_COPY_OUT_SYSTEM_EXT := system_ext
 
 # manage squashfs/sparse format for system image, disable by default for now
 TARGET_USERIMAGES_SPARSE_SQUASHFS_DISABLED := true
@@ -93,6 +91,9 @@ ifeq ($(TARGET_USERIMAGES_SPARSE_EXT_DISABLED),)
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := false
 endif
 
+# teefs.img
+BOARD_TEEFSIMAGE_PARTITION_SIZE := ${STM32MP1_TEEFS_PART_SIZE}
+
 # product.img
 BOARD_USES_PRODUCTIMAGE := true
 BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
@@ -100,7 +101,6 @@ TARGET_COPY_OUT_PRODUCT := product
 
 # vendor.img
 BOARD_USES_VENDORIMAGE := true
-# BOARD_VENDORIMAGE_PARTITION_SIZE := ${STM32MP1_VENDOR_PART_SIZE}
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 ifeq ($(TARGET_USERIMAGES_SPARSE_SQUASHFS_DISABLED),false)
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := squashfs
@@ -108,6 +108,8 @@ endif
 TARGET_COPY_OUT_VENDOR := vendor
 
 # boot.img
+BOARD_BOOTIMAGE_PARTITION_SIZE := ${STM32MP1_BOOT_PART_SIZE}
+
 BOARD_KERNEL_BASE        := 0xC0008000
 BOARD_KERNEL_PAGESIZE    := 4096
 BOARD_KERNEL_TAGS_OFFSET := 0x00000100
@@ -122,19 +124,21 @@ AB_OTA_UPDATER := true
 AB_OTA_PARTITIONS += \
     boot \
     system \
+    system_ext \
     vendor \
     product
 
 # =========================================================== #
 # Kernel command line                                         #
 # =========================================================== #
-BOARD_KERNEL_CMDLINE := console=ttySTM0,115200 androidboot.console=ttySTM0 consoleblank=0
+BOARD_KERNEL_CMDLINE := androidboot.console=ttySTM0 serdev_ttyport.pdev_tty_port=ttyXXX consoleblank=0
 BOARD_KERNEL_CMDLINE += root=/dev/ram rw rootfstype=ext4 rootwait
 BOARD_KERNEL_CMDLINE += init=/init firmware_class.path=/vendor/firmware
-BOARD_KERNEL_CMDLINE += androidboot.hardware=stm
+BOARD_KERNEL_CMDLINE += androidboot.hardware=stm androidboot.fake_battery=1
 
 ifneq ($(TARGET_BUILD_VARIANT),user)
 
+BOARD_KERNEL_CMDLINE += no_console_suspend
 BOARD_KERNEL_CMDLINE += loglevel=8
 BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
@@ -148,7 +152,7 @@ BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 
 # Enable atrace on boot for task scheduling
 # BOARD_KERNEL_CMDLINE +=trace_buf_size=64M
-# BOARD_KERNEL_CMDLINE +=trace_event=sched_wakeup,sched_switch,sched_blocked_reason
+# BOARD_KERNEL_CMDLINE +=trace_event=sched_process_exit,sched_switch,sched_process_free,task_newtask,task_rename
 
 # Enable atrace on boot for I/O analysis
 # BOARD_KERNEL_CMDLINE +=trace_buf_size=64M
@@ -193,10 +197,6 @@ TARGET_USES_HWC2 := true
 BOARD_USES_DRM_HWCOMPOSER_STM := true
 BOARD_DRM_HWCOMPOSER_BUFFER_IMPORTER := stm32mpu
 
-VSYNC_EVENT_PHASE_OFFSET_NS := 2000000
-SF_VSYNC_EVENT_PHASE_OFFSET_NS := 6000000
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
-
 # =========================================================== #
 # General configuration                                       #
 # =========================================================== #
@@ -204,6 +204,7 @@ NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 # vendor manifest and compatibility matrix
 DEVICE_MANIFEST_FILE := device/stm/stm32mp1/$(BOARD_NAME)/manifest.xml
 DEVICE_MATRIX_FILE := device/stm/stm32mp1/$(BOARD_NAME)/compatibility_matrix.xml
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := device/stm/stm32mp1/$(BOARD_NAME)/framework_compatibility_matrix.xml
 
 # use mke2fs to create ext4 images
 TARGET_USES_MKE2FS := true

@@ -5,3 +5,19 @@ type hal_dumpstate_eval_exec, exec_type, file_type, vendor_file_type;
 init_daemon_domain(hal_dumpstate_eval)
 
 allow hal_dumpstate_eval dumpstate:fifo_file write;
+allow hal_dumpstate_eval vendor_toolbox_exec:file execute_no_trans;
+allow hal_dumpstate_eval vendor_shell_exec:file execute_no_trans;
+allow hal_dumpstate_eval proc_meminfo:file r_file_perms;
+allow hal_dumpstate_eval shell_data_file:file getattr;
+
+allow hal_dumpstate_eval sysfs_thermal:dir r_dir_perms;
+allow hal_dumpstate_eval sysfs_thermal:file r_file_perms;
+
+get_prop(hal_dumpstate_eval, vendor_logging_prop);
+get_prop(hal_dumpstate_eval, apk_verity_prop);
+
+# waiting for vendor getprop cleaning
+dontaudit hal_dumpstate_eval {
+  adbd_prop
+  apexd_prop
+}:file { getattr map open };

@@ -1,0 +1,14 @@
+<compatibility-matrix version="1.0" type="framework">
+    <hal format="hidl" optional="true">
+        <name>android.hardware.copro</name>
+        <version>1.0</version>
+        <interface>
+            <name>ICopro</name>
+            <instance>default</instance>
+        </interface>
+        <interface>
+            <name>ICoproSerialPortHal</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</compatibility-matrix>

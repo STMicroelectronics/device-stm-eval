@@ -26,23 +26,33 @@
 
     <feature name="android.hardware.location" />
     <!-- devices supporting compass/magnitometer sensor must include
-	 android.hardware.sensor.compass.xml -->
+     android.hardware.sensor.compass.xml -->
     <!-- <feature name="android.hardware.sensor.gyroscope" />
     <feature name="android.hardware.sensor.accelerometer" /> -->
     <feature name="android.hardware.touchscreen" />
     <feature name="android.hardware.microphone" />
 
     <!-- basic system services -->
+    <feature name="android.software.connectionservice" />
+    <feature name="android.software.backup" />
     <feature name="android.software.home_screen" />
-    <feature name="android.software.secure_lock_screen" />
-
-    <!-- device administration -->
-    <feature name="android.software.device_admin" />
-
-    <!-- input management and third-party input method editors -->
     <feature name="android.software.input_methods" />
+    <feature name="android.software.print" />
+    <feature name="android.software.companion_device_setup" />
+    <feature name="android.software.autofill" />
+    <feature name="android.software.cant_save_state" />
 
-    <!-- devices with GPS must include device/google/clockwork/gps.xml -->
+    <!-- Feature to specify if the device supports adding device admins. -->
+    <!-- <feature name="android.software.device_admin" /> -->
+
+    <!-- Devices with all optimizations required to support VR Mode and
+         pass all CDD requirements for this feature may include
+         android.hardware.vr.high_performance -->
+    <!-- Devices that support VR headtracking features and pass all CDD
+         requirements may include
+         android.hardware.vr.headtracking -->
+
+    <!-- devices with GPS must include android.hardware.location.gps.xml -->
     <!-- devices with an autofocus camera and/or flash must include either
          android.hardware.camera.autofocus.xml or
          android.hardware.camera.autofocus-flash.xml -->
@@ -66,9 +76,9 @@
          android.hardware.sensor.light.xml -->
     <!-- devices with a proximity sensor must also include
          android.hardware.sensor.proximity.xml -->
+    <!-- GSM phones must also include android.hardware.telephony.gsm.xml -->
+    <!-- CDMA phones must also include android.hardware.telephony.cdma.xml -->
     <!-- Devices that have low-latency audio stacks suitable for apps like
          VoIP may include android.hardware.audio.low_latency.xml. ONLY apps
          that meet the requirements specified in the CDD may include this. -->
-    <!-- devices that have audio output capability as specified in the CDD must
-         also include android.hardware.audio.output.xml -->
 </permissions>

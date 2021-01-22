@@ -108,6 +108,14 @@
     <!-- Set this true only if the device has separate attention and notification lights. -->
     <bool name="config_useAttentionLight">true</bool>
 
+    <!-- Component name for the activity that will be presenting the Recents UI, which will receive
+         special permissions for API related to fetching and presenting recent tasks. The default
+         configuration uses Launcehr3QuickStep as default launcher and points to the corresponding
+         recents component. When using a different default launcher, change this appropriately or
+         use the default systemui implementation: com.android.systemui/.recents.RecentsActivity -->
+    <string name="config_recentsComponentName" translatable="false"
+            >com.android.systemui/.recents.RecentsActivity</string>
+
     <!-- If true, enables auto-rotation features using the accelerometer.
          Otherwise, auto-rotation is disabled.  Applications may still request
          to use specific orientations but the sensor is ignored and sensor-based
@@ -117,7 +125,34 @@
          docked if the dock is configured to enable the accelerometer. -->
     <bool name="config_supportAutoRotation">false</bool>
 
+    <!-- True if the device supports insecure lock screen. -->
+    <bool name="config_supportsInsecureLockScreen">false</bool>
+
     <!-- Integer indicating the framework scan interval in milliseconds. -->
     <integer translatable="false" name="config_wifi_framework_scan_interval">10000</integer>
+
+    <!-- The amount to scale fullscreen snapshots for Overview and snapshot starting windows. -->
+    <item name="config_highResTaskSnapshotScale" format="float" type="dimen">0.8</item>
+
+    <!-- The amount to scale reduced scale snapshots for Overview and snapshot starting windows.
+         Reduced scale snapshots are loaded before full screen snapshots to improve load times and
+         minimize the chance the user will see an empty task card. If set to 0, reduced scale
+         snapshots are disabled, and snapshots will only be stored at config_highResTaskSnapshotScale
+         -->
+    <item name="config_lowResTaskSnapshotScale" format="float" type="dimen">0.3</item>
+
+    <!-- Feature flag to store TaskSnapshot in 16 bit pixel format to save memory. -->
+    <bool name="config_use16BitTaskSnapshotPixelFormat">true</bool>
+
+    <!-- True if the device requires AppWidgetService even if it does not have
+         the PackageManager.FEATURE_APP_WIDGETS feature -->
+    <bool name="config_enableAppWidgetService">true</bool>
+
+    <!-- Disable WiFi Debugging -->
+    <bool translatable="false" name="config_wifi_enable_wifi_firmware_debugging">false</bool>
+    <integer translatable="false" name="config_wifi_logger_ring_buffer_verbose_size_limit_kb">64</integer>
+
+    <!-- Enable Zram writeback feature to allow unused pages in zram be written to flash. -->
+    <bool name="config_zramWriteback">true</bool>
 
 </resources>

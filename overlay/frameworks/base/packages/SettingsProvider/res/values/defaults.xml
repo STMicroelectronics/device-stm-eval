@@ -19,6 +19,9 @@
 
 <resources>
 
+    <!-- Disable Bluetooth by default -->
+    <bool name="def_bluetooth_on">false</bool>
+
     <!-- Do not enable auto rotation switching -->
     <bool name="def_accelerometer_rotation">false</bool>
 
@@ -37,5 +40,11 @@
     <!-- Number of retries for connecting to DHCP.
          Value here is the same as WifiStateMachine.DEFAULT_MAX_DHCP_RETRIES -->
     <integer name="def_max_dhcp_retries">9</integer>
+
+    <!-- ms until the system goes to sleep, 24 hours -->
+    <integer name="def_sleep_timeout">86400000</integer>
+
+    <!-- Default screen timeout set when setting screensaver, 24 hours -->
+    <integer name="def_screen_off_timeout">86400000</integer>
 
 </resources>

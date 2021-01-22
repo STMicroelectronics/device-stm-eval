@@ -34,12 +34,16 @@
 
 # service tee_supplicant (used to load trust applications)
 service tee_supplicant /vendor/bin/tee-supplicant /dev/teepriv0
-    class tee
+    class early_hal
     user root
     group root system
     oneshot
 
-# load tee modules and start supplicant
-on boot && property:ro.boot.optee=true
-    write /dev/kmsg "start tee_supplicant"
-    class_start tee
+on post-fs
+    mkdir /mnt/vendor/teefs/optee 0775 system system
+    mkdir /mnt/vendor/teefs/optee/optee_armtz 0775 system system
+    restorecon_recursive /mnt/vendor/teefs
+
+    start tee_supplicant
+    start vendor.keymaster-3-0-optee
+    exec_start wait_for_keymaster_optee

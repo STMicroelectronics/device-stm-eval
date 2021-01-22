@@ -19,7 +19,7 @@ SOC_FAMILY := stm32mp1
 
 # Soc name and version used to define bootloader required configuration
 SOC_NAME := stm32mp15
-SOC_VERSION := stm32mp157c
+SOC_VERSION := stm32mp157f
 
 # Board name used to define device/$(SOC_FAMILY)/$(BOARD_NAME)/
 BOARD_NAME := eval
@@ -30,7 +30,7 @@ BOARD_CONFIG := aosp
 # Board flavour used to define required configuration (ev1)
 BOARD_FLAVOUR ?= ev1
 
-# Board option (normal, empty, demo)
+# Board option (normal, empty, demo, demost)
 BOARD_OPTION ?= normal
 
 # Board disk type (sd, emmc)
@@ -43,8 +43,9 @@ endif
 # Inherit from the Android Open Source Product configuration
 $(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)
 $(call inherit-product, device/stm/stm32mp1/$(BOARD_NAME)/device.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base.mk)
-
+$(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackageGo.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_no_telephony.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/go_defaults.mk)
 
 # Inherit from the Google Mobile Service configuration if available
@@ -53,6 +54,6 @@ $(call inherit-product-if-exists, vendor/google/products/gms.mk)
 PRODUCT_NAME := $(BOARD_CONFIG)_$(BOARD_NAME)
 PRODUCT_DEVICE := $(BOARD_NAME)
 PRODUCT_BRAND := Android
-PRODUCT_MODEL := Android $(BOARD_CONFIG) on $(BOARD_NAME)
+PRODUCT_MODEL := Android $(BOARD_CONFIG) on $(SOC_VERSION)-${BOARD_FLAVOUR}
 PRODUCT_MANUFACTURER := STMicroelectronics
 PRODUCT_RESTRICT_VENDOR_FILES := false

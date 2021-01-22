@@ -4,7 +4,7 @@ This module contains the STMicroelectronics configuration for Android used to ge
 
 It is part of the STMicroelectronics delivery for Android (see the [delivery][] for more information).
 
-[delivery]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v1.1.0
+[delivery]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v2.0.0
 
 The STM32MP15 Evaluation boards integrate a STMicroelectronics STM32MP1 chip.
 
@@ -12,8 +12,7 @@ See the associated wiki page for more details on STMicrolectronics site.
 
 ## Description ##
 
-This module version is the first version for STM32MP1
-
+This module version is the updated version for STM32MP15 distribution for Android V2.0
 Please see the Android delivery release notes for more details.
 
 ## Documentation ##
@@ -21,7 +20,7 @@ Please see the Android delivery release notes for more details.
 * The [release notes][] document the information on the release.
 * The [distribution package][] provides detailed information on how to use this delivery.
 
-[release notes]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v1.1.0
+[release notes]: https://wiki.st.com/stm32mpu/wiki/STM32MP15_distribution_for_Android_release_note_-_v2.0.0
 [distribution package]: https://wiki.st.com/stm32mpu/wiki/STM32MP1_Distribution_Package_for_Android
 
 ## Dependencies ##
@@ -56,10 +55,8 @@ This module contains several files and directories.
 
 **Configuration:**
 * `./firmware/*`: required or optional firmwares (ex: Wi-Fi/BT firmwares)
-* `./lights/*`: lights configuration files
 * `./media/*`: audio and video configuration files (audio policy, audio HAL configuration...)
 * `./network/*`: network configuration files (bluetooth and Wi-Fi)
-* `./thermal/*`: thermal configuration files
 
 **Overlay Configuration:**
 * `./overlay`: contains Android frameworks configuration overlay
@@ -67,14 +64,8 @@ This module contains several files and directories.
 **Sepolicy**
 * `./sepolicy`: sepolicy for STM32MP15 Evaluation boards
 
-**Others:**
-* `board-info.txt`: STM32MP15 Evaluation boards info
-* `st_core_hardware.xml`: define permissions for STM32MP15 Evaluation boards
-* `manifest.xml`: define vendor interfaces for STM32MP15 Evaluation boards
-* `compatibility_matrix.xml`: define vendor required services
-* `system.prop`: define device system properties (set at init)
-* `ueventd.stm.rc`: define kernel device access rights
-* `wallpaper/*`: default wallpaper bitmap
+**Others**
+* several configuration files
 
 ## License ##
 

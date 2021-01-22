@@ -56,12 +56,14 @@ on early-boot
     # Device Vendor ID
     write /config/usb_gadget/g1/idVendor 0x0483
 
-    # Set common USB configuration descriptor parameters (max power = 500mA)
+    # Set common USB configuration descriptor parameters
     mkdir /config/usb_gadget/g1/configs/b.1 0770 shell shell
     chmod 0770 /config/usb_gadget/g1/configs/b.1
     mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409 0770 shell shell
     chmod /config/usb_gadget/g1/configs/b.1/strings/0x409 0770
+    # max power = 250mA / self-powered device (bmAttributes)
     write /config/usb_gadget/g1/configs/b.1/MaxPower 250
+    write /config/usb_gadget/g1/configs/b.1/bmAttributes "0xC0"
 
     # Microsoft OS extension
     write /config/usb_gadget/g1/os_desc/qw_sign "MSFT100"
@@ -89,6 +91,14 @@ on early-boot
     mkdir /config/usb_gadget/g1/functions/ffs.ptp 0770 shell shell
     chmod /config/usb_gadget/g1/functions/ffs.ptp 0770
     mount functionfs ptp /dev/usb-ffs/ptp rmode=0770,fmode=0660,uid=1024,gid=1024,no_disconnect=1
+
+    # Create the function functionfs for RNDIS
+    mkdir /config/usb_gadget/g1/functions/rndis.0 0770 shell shell
+    chmod /config/usb_gadget/g1/functions/rndis.0 0770
+    mkdir /config/usb_gadget/g1/functions/rndis.0/os_desc/interface.rndis
+    write /config/usb_gadget/g1/functions/rndis.0/os_desc/interface.rndis/compatible_id "RNDIS"
+    write /config/usb_gadget/g1/functions/rndis.0/os_desc/interface.rndis/sub_compatible_id "5162001"
+
 on boot
     setprop sys.usb.controller 49000000.usb-otg
 
