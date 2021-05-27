@@ -24,6 +24,9 @@ insmod /vendor/lib/modules/ath9k_htc.ko
 # echo "BootAnalyze: TP-Link HTC TL WN722N Wi-Fi dongle driver end">>/dev/kmsg
 
 # echo "BootAnalyze: DCMI camera driver start">>/dev/kmsg
+insmod /vendor/lib/modules/videobuf2-common.ko
+insmod /vendor/lib/modules/videobuf2-v4l2.ko
+insmod /vendor/lib/modules/videobuf2-memops.ko
 insmod /vendor/lib/modules/videobuf2-dma-contig.ko
 insmod /vendor/lib/modules/v4l2-fwnode.ko
 insmod /vendor/lib/modules/ov5640.ko

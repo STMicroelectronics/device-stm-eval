@@ -12,6 +12,7 @@ allow hal_dumpstate_eval shell_data_file:file getattr;
 
 allow hal_dumpstate_eval sysfs_thermal:dir r_dir_perms;
 allow hal_dumpstate_eval sysfs_thermal:file r_file_perms;
+allow hal_dumpstate_eval sysfs_thermal:lnk_file r_file_perms;
 
 get_prop(hal_dumpstate_eval, vendor_logging_prop);
 get_prop(hal_dumpstate_eval, apk_verity_prop);

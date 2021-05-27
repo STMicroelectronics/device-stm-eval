@@ -20,6 +20,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 PRODUCT_CHARACTERISTICS := nosdcard
 PRODUCT_SHIPPING_API_LEVEL = 30
 
+# Uncomment if a forbidden kernel config shall be set for debug purpose
+# PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
+
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
 PRODUCT_SOONG_NAMESPACES += \
@@ -453,7 +456,6 @@ endif
 
 # Wallpaper
 ifneq ($(BOARD_OPTION),empty)
-ifneq ($(BOARD_OPTION),demost)
 
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp1/$(BOARD_NAME)/wallpaper/st_background_1280x720.bmp:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/wallpaper.bmp
@@ -461,7 +463,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PRODUCT_PROPERTIES += \
 	ro.config.wallpaper=/product/media/wallpaper/wallpaper.bmp
 
-endif
 endif
 
 # ST applications
@@ -482,13 +483,19 @@ PRODUCT_DEXPREOPT_SPEED_APPS += \
 
 # ST Copro firmwares
 PRODUCT_COPY_FILES += \
-	vendor/stm/app/firmwares/$(BOARD_NAME)/OpenAMP_TTY_echo.elf:$(TARGET_COPY_OUT_VENDOR)/firmware/copro/OpenAMP_TTY_echo.elf \
 	vendor/stm/app/firmwares/$(BOARD_NAME)/copro_m4example.elf:$(TARGET_COPY_OUT_VENDOR)/firmware/copro/copro_m4example.elf
 
 # ST Copro applications
 PRODUCT_PACKAGES += \
-	STCoproM4Echo \
 	STCoproM4Example
+
+ifeq ($(BOARD_OPTION),normal)
+PRODUCT_COPY_FILES += \
+	vendor/stm/app/firmwares/$(BOARD_NAME)/OpenAMP_TTY_echo.elf:$(TARGET_COPY_OUT_VENDOR)/firmware/copro/OpenAMP_TTY_echo.elf
+
+PRODUCT_PACKAGES += \
+	STCoproM4Echo
+endif
 
 # Integrate STPerf only in debug build (need permissive)
 ifneq ($(TARGET_BUILD_VARIANT),user)
