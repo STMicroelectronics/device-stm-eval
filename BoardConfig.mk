@@ -64,7 +64,7 @@ TARGET_RECOVERY_WIPE := device/stm/stm32mp1/$(BOARD_NAME)/recovery.wipe
 TARGET_RECOVERY_FSTAB := device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm
 
 # enable AVB
-# BOARD_AVB_ENABLE := true
+BOARD_AVB_ENABLE := true
 
 # system.img
 BOARD_SYSTEMIMAGE_JOURNAL_SIZE := 0
@@ -143,8 +143,7 @@ BOARD_KERNEL_CMDLINE += loglevel=8
 BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 
-# Enable graphic trace (graphic allocator and drm)
-# BOARD_KERNEL_CMDLINE += gralloc.trace=1
+# Enable graphic trace (drm)
 # BOARD_KERNEL_CMDLINE += drm.debug=0x3f
 
 # Enable dynamic debug (for file) on boot (change <path_to_file> by required kernel file)
@@ -190,7 +189,6 @@ endif
 
 # graphics configuration
 BOARD_GPU_DRIVERS := vivante
-USE_OPENGL_RENDERER := true
 
 TARGET_USE_PRIVATE_LIBDRM := false
 TARGET_USES_HWC2 := true

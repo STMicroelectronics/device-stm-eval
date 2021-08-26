@@ -15,6 +15,15 @@ insmod /vendor/lib/modules/edt-ft5x06.ko
 insmod /vendor/lib/modules/rtl8xxxu.ko
 # echo "BootAnalyze: Realtek dongle driver end">>/dev/kmsg
 
+# echo "BootAnalyze: Mediatek dongle driver start">>/dev/kmsg
+insmod /vendor/lib/modules/mt76.ko
+insmod /vendor/lib/modules/mt76-usb.ko
+insmod /vendor/lib/modules/mt76x02-lib.ko
+insmod /vendor/lib/modules/mt76x02-usb.ko
+insmod /vendor/lib/modules/mt76x2-common.ko
+insmod /vendor/lib/modules/mt76x2u.ko
+# echo "BootAnalyze: Mediatek dongle driver end">>/dev/kmsg
+
 # echo "BootAnalyze: TP-Link HTC TL WN722N Wi-Fi dongle driver start">>/dev/kmsg
 insmod /vendor/lib/modules/ath.ko
 insmod /vendor/lib/modules/ath9k_hw.ko

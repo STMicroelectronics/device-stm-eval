@@ -33,6 +33,9 @@ BOARD_FLAVOUR ?= ev1
 # Board option (normal, empty, demo, demost)
 BOARD_OPTION ?= normal
 
+# Board display option (mb1230 or mb1166)
+BOARD_DISPLAY_PANEL ?= mb1230
+
 # Board disk type (sd, emmc)
 ifdef STM32MP1_DISK_TYPE
 BOARD_DISK_TYPE ?= $(STM32MP1_DISK_TYPE)

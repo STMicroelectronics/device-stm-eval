@@ -132,29 +132,39 @@ PRODUCT_PACKAGES += \
 	libwifi-hal-stm \
 	lib_driver_cmd_stm
 
-# Display & Graphics configuration
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES +=
-	ro.surface_flinger.max_frame_buffer_acquired_buffers=3 \
-	ro.surface_flinger.vsync_event_phase_offset_ns=2000000 \
-	ro.surface_flinger.vsync_sf_event_phase_offset_ns=6000000 \
-	ro.surface_flinger.use_vr_flinger=false \
-	ro.surface_flinger.has_wide_color_display=false \
-	ro.surface_flinger.has_HDR_display=false \
-	ro.surface_flinger.use_color_management=true \
-	ro.surface_flinger.protected_contents=true
+# Remove unnecessary packages
+PRODUCT_PACKAGES += \
+	remove-BlockedNumberProvider \
+	remove-Telecom \
+	remove-TeleService \
+	remove-MmsService \
+	remove-Bluetooth \
+	remove-MusicFX \
+	remove-NfcNci
 
-# GRALLOC HAL module
+# Display & Graphics configuration
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.vsync_event_phase_offset_ns=2000000
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.vsync_sf_event_phase_offset_ns=6000000
+
+# Graphics HAL modules
 PRODUCT_PACKAGES += \
 	libdrm \
 	libdrm_vivante \
 	hwcomposer.$(TARGET_COMPOSER_HAL) \
-	gralloc.$(TARGET_GRALLOC_HAL) \
+	gralloc.$(TARGET_GRALLOC_HAL)
+
+# Graphics GPU libraries
+PRODUCT_PACKAGES += \
 	libGLESv2_VIVANTE \
 	libEGL_VIVANTE \
 	libGLESv1_CM_VIVANTE \
 	libGAL \
 	libGLSLC \
 	libVSC
+
+# Enable gralloc trace (disabled by default)
+# PRODUCT_PROPERTY_OVERRIDES += \
+# 	vendor.gralloc.trace=1
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.hardware.gralloc=$(TARGET_GRALLOC_HAL) \
@@ -354,6 +364,7 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.usb.host.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.usb.host.xml \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.usb.accessory.xml \
 	frameworks/native/data/etc/android.software.backup.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.backup.xml \
+	frameworks/native/data/etc/android.hardware.screen.portrait.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.screen.portrait.xml \
 	frameworks/native/data/etc/android.hardware.screen.landscape.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.screen.landscape.xml \
 	frameworks/native/data/etc/android.software.verified_boot.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.verified_boot.xml
 
@@ -403,7 +414,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # HWC disable overlay planes usage
 PRODUCT_PROPERTY_OVERRIDES += \
-	vendor.hwc.drm.use_overlay_planes=0
+	vendor.hwc.drm.use_overlay_planes=1
 
 # for off charging mode
 PRODUCT_PACKAGES += \
@@ -415,10 +426,7 @@ PRODUCT_PACKAGES += \
 #	persist.traced.enable=0
 
 PRODUCT_PACKAGES += \
-	vmlinux \
-	stagefright \
-	libaudiopolicymanagerdefault \
-	libaudiopolicymanager
+	stagefright
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.radio.noril=yes
@@ -457,8 +465,13 @@ endif
 # Wallpaper
 ifneq ($(BOARD_OPTION),empty)
 
+ifneq ($(BOARD_DISPLAY_PANEL),mb1166)
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp1/$(BOARD_NAME)/wallpaper/st_background_1280x720.bmp:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/wallpaper.bmp
+else
+PRODUCT_COPY_FILES += \
+	device/stm/stm32mp1/$(BOARD_NAME)/wallpaper/st_background_800x480.bmp:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/wallpaper.bmp
+endif
 
 PRODUCT_PRODUCT_PROPERTIES += \
 	ro.config.wallpaper=/product/media/wallpaper/wallpaper.bmp
