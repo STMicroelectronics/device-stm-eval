@@ -1,1 +1,1 @@
-/(vendor|system/vendor)/bin/hw/android\.hardware\.dumpstate@1\.1-service\.eval    u:object_r:hal_dumpstate_eval_exec:s0
+/vendor/bin/hw/android.hardware.dumpstate-service.stm32mpu.eval    u:object_r:hal_dumpstate_eval_exec:s0

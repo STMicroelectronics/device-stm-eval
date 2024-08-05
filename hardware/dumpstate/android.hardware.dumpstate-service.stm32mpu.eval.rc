@@ -1,0 +1,7 @@
+service vendor.dumpstate-stm32mpu /vendor/bin/hw/android.hardware.dumpstate-service.stm32mpu.eval
+    class hal
+    user nobody
+    group nobody
+    interface aidl android.hardware.dumpstate.IDumpstateDevice/default
+    oneshot
+    disabled

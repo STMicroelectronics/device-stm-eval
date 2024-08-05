@@ -1,0 +1,1421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<metadata xmlns="http://schemas.android.com/service/camera/metadata/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata_definitions.xsd">
+  <namespace name="android">
+    <section name="colorCorrection">
+      <controls>
+        <entry name="aberrationMode" type="byte" visibility="public" enum="true" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>FAST</value>
+            <value>HIGH_QUALITY</value>
+          </enum>
+          <range max='3' />
+          <template name="still-capture">OFF</template>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableAberrationModes" type="byte" visibility="public"
+        type_notes="list of enums" container="array" typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.colorCorrection.aberrationMode</enum>
+          <value>OFF</value>
+        </entry>
+      </static>
+    </section>
+    <section name="control">
+      <controls>
+        <entry name="aeAntibandingMode" type="byte" visibility="public"
+               enum="true" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>50HZ</value>
+            <value>60HZ</value>
+            <value>AUTO</value>
+          </enum>
+          <range>android.control.aeAvailableAntibandingModes</range>
+          <template name="manual">OFF</template>
+          <template>AUTO</template>
+          <delegate name="no-effect">AUTO</delegate>
+        </entry>
+        <entry name="aeExposureCompensation" type="int32" visibility="public" hwlevel="legacy">
+          <range minmax="android.control.aeCompensationRange" />
+          <template>0</template>
+          <delegate name="no-effect">0</delegate>
+        </entry>
+        <entry name="aeLock" type="byte" visibility="public" enum="true"
+               typedef="boolean" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+          </enum>
+          <!-- AE lock not supported, limit accepted value to OFF -->
+          <value>OFF</value>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+        <entry name="aeMode" type="byte" visibility="public" enum="true" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+            <value>ON_AUTO_FLASH</value>
+            <value>ON_ALWAYS_FLASH</value>
+            <value>ON_AUTO_FLASH_REDEYE</value>
+            <value>ON_EXTERNAL_FLASH</value>
+          </enum>
+          <range>android.control.aeAvailableModes</range>
+          <template name="manual">OFF</template>
+          <template>ON</template>
+          <delegate name="no-effect">ON</delegate>
+        </entry>
+        <entry name="aeTargetFpsRange" type="int32" visibility="public"
+               container="array" typedef="rangeInt" hwlevel="legacy">
+          <array>
+            <size>2</size>
+          </array>
+          <range>android.control.aeAvailableTargetFpsRanges</range>
+          <template>15 30</template>
+          <delegate name="no-effect">15 30</delegate>
+        </entry>
+        <entry name="aePrecaptureTrigger" type="byte" visibility="public"
+               enum="true" hwlevel="limited">
+          <enum>
+            <value>IDLE</value>
+            <value>START</value>
+            <value>CANCEL</value>
+          </enum>
+          <template>IDLE</template>
+          <delegate name="no-effect">IDLE</delegate>
+        </entry>
+        <entry name="afMode" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>AUTO</value>
+            <value>MACRO</value>
+            <value>CONTINUOUS_VIDEO</value>
+            <value>CONTINUOUS_PICTURE</value>
+            <value>EDOF</value>
+          </enum>
+          <range>android.control.afAvailableModes</range>
+          <template name="manual">OFF</template>
+          <template name="video-record">CONTINUOUS_VIDEO</template>
+          <template>AUTO</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+        <entry name="afTrigger" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>IDLE</value>
+            <value>START</value>
+            <value>CANCEL</value>
+          </enum>
+          <template>IDLE</template>
+          <delegate name="no-effect">IDLE</delegate>
+        </entry>
+        <entry name="awbLock" type="byte" visibility="public" enum="true"
+               typedef="boolean" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+          </enum>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+        <entry name="awbMode" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>AUTO</value>
+            <value>INCANDESCENT</value>
+            <value>FLUORESCENT</value>
+            <value>WARM_FLUORESCENT</value>
+            <value>DAYLIGHT</value>
+            <value>CLOUDY_DAYLIGHT</value>
+            <value>TWILIGHT</value>
+            <value>SHADE</value>
+          </enum>
+          <range>android.control.awbAvailableModes</range>
+          <template name="manual">OFF</template>
+          <template>AUTO</template>
+          <delegate name="no-effect">AUTO</delegate>
+        </entry>
+        <entry name="captureIntent" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>CUSTOM</value>
+            <value>PREVIEW</value>
+            <value>STILL_CAPTURE</value>
+            <value>VIDEO_RECORD</value>
+            <value>VIDEO_SNAPSHOT</value>
+            <value>ZERO_SHUTTER_LAG</value>
+            <value>MANUAL</value>
+            <value>MOTION_TRACKING</value>
+          </enum>
+          <range>
+            <value>CUSTOM</value>
+            <value>PREVIEW</value>
+            <value>STILL_CAPTURE</value>
+            <value>VIDEO_RECORD</value>
+            <value>VIDEO_SNAPSHOT</value>
+            <value>ZERO_SHUTTER_LAG</value>
+          </range>
+          <template name="preview">PREVIEW</template>
+          <template name="still-capture">STILL_CAPTURE</template>
+          <template name="video-record">VIDEO_RECORD</template>
+          <template name="video-snapshot">VIDEO_SNAPSHOT</template>
+          <template name="0-shutter-lag">PREVIEW</template>
+          <template name="manual">MANUAL</template>
+          <template name="other">CUSTOM</template>
+          <delegate name="no-effect">PREVIEW</delegate>
+        </entry>
+        <entry name="effectMode" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>MONO</value>
+            <value>NEGATIVE</value>
+            <value>SOLARIZE</value>
+            <value>SEPIA</value>
+            <value>POSTERIZE</value>
+            <value>WHITEBOARD</value>
+            <value>BLACKBOARD</value>
+            <value>AQUA</value>
+          </enum>
+          <range>android.control.availableEffects</range>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+        <entry name="mode" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>AUTO</value>
+            <value>USE_SCENE_MODE</value>
+            <value>OFF_KEEP_STATE</value>
+            <value>USE_EXTENDED_SCENE_MODE</value>
+          </enum>
+          <range>android.control.availableModes</range>
+          <template name="manual">OFF</template>
+          <template>AUTO</template>
+          <delegate name="no-effect">AUTO</delegate>
+        </entry>
+        <entry name="sceneMode" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>DISABLED</value>
+            <value>FACE_PRIORITY</value>
+            <value>ACTION</value>
+            <value>PORTRAIT</value>
+            <value>LANDSCAPE</value>
+            <value>NIGHT</value>
+            <value>NIGHT_PORTRAIT</value>
+            <value>THEATRE</value>
+            <value>BEACH</value>
+            <value>SNOW</value>
+            <value>SUNSET</value>
+            <value>STEADYPHOTO</value>
+            <value>FIREWORKS</value>
+            <value>SPORTS</value>
+            <value>PARTY</value>
+            <value>CANDLELIGHT</value>
+            <value>BARCODE</value>
+            <value>HIGH_SPEED_VIDEO</value>
+            <value>HDR</value>
+          </enum>
+          <range>android.control.availableSceneModes</range>
+          <template>DISABLED</template>
+          <delegate name="no-effect">DISABLED</delegate>
+        </entry>
+        <entry name="videoStabilizationMode" type="byte" visibility="public"
+               enum="true" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+            <value hal_version="3.8">PREVIEW_STABILIZATION</value>
+          </enum>
+          <range>android.control.availableVideoStabilizationModes</range>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="aeAvailableAntibandingModes" type="byte" visibility="public"
+               type_notes="list of enums" container="array" typedef="enumList"
+               hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.aeAntibandingMode</enum>
+          <value>AUTO</value>
+        </entry>
+        <entry name="aeAvailableModes" type="byte" visibility="public"
+               type_notes="list of enums" container="array" typedef="enumList"
+               hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.aeMode</enum>
+          <value>ON</value>
+        </entry>
+        <entry name="aeAvailableTargetFpsRanges" type="int32" visibility="public"
+               type_notes="list of pairs of frame rates"
+               container="array" typedef="rangeInt"
+               hwlevel="legacy">
+          <array>
+            <size>2</size>
+            <size>n</size>
+          </array>
+          <value>15 30</value>
+        </entry>
+        <entry name="aeCompensationRange" type="int32" visibility="public"
+               container="array" typedef="rangeInt"
+               hwlevel="legacy">
+          <array>
+            <size>2</size>
+          </array>
+          <!-- exposure compensation not supported -->
+          <value>0 0</value>
+        </entry>
+        <entry name="aeCompensationStep" type="rational" visibility="public"
+               hwlevel="legacy">
+          <!--exposure compensation not supported -->
+          <value>0/1000</value>
+        </entry>
+        <entry name="afAvailableModes" type="byte" visibility="public"
+               type_notes="List of enums" container="array" typedef="enumList"
+               hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.afMode</enum>
+          <value>OFF</value>
+        </entry>
+        <entry name="availableEffects" type="byte" visibility="public"
+               type_notes="List of enums (android.control.effectMode)." container="array"
+               typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.effectMode</enum>
+          <!-- no color effect supported -->
+          <value>OFF</value>
+        </entry>
+        <entry name="availableSceneModes" type="byte" visibility="public"
+               type_notes="List of enums (android.control.sceneMode)."
+               container="array" typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.sceneMode</enum>
+          <!-- no scene mode supported -->
+          <value>DISABLED</value>
+        </entry>
+        <entry name="availableVideoStabilizationModes" type="byte"
+               visibility="public" type_notes="List of enums." container="array"
+               typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.videoStabilizationMode</enum>
+          <!-- video stabilization not supported -->
+          <value>OFF</value>
+        </entry>
+        <entry name="awbAvailableModes" type="byte" visibility="public"
+               type_notes="List of enums"
+               container="array" typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.awbMode</enum>
+          <value>AUTO</value>
+        </entry>
+        <entry name="maxRegions" type="int32" visibility="ndk_public"
+               container="array" hwlevel="legacy">
+          <array>
+            <size>3</size>
+          </array>
+          <value>0 0 0</value>
+        </entry>
+      </static>
+      <dynamic>
+        <entry name="aeState" type="byte" visibility="public" enum="true"
+               hwlevel="limited">
+          <enum>
+            <value>INACTIVE</value>
+            <value>SEARCHING</value>
+            <value>CONVERGED</value>
+            <value>LOCKED</value>
+            <value>FLASH_REQUIRED</value>
+            <value>PRECAPTURE</value>
+          </enum>
+          <!-- cannot get the camera AE state, set it to CONVERGED -->
+          <delegate name="fixed">CONVERGED</delegate>
+        </entry>
+        <entry name="afState" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>INACTIVE</value>
+            <value>PASSIVE_SCAN</value>
+            <value>PASSIVE_FOCUSED</value>
+            <value>ACTIVE_SCAN</value>
+            <value>FOCUSED_LOCKED</value>
+            <value>NOT_FOCUSED_LOCKED</value>
+            <value>PASSIVE_UNFOCUSED</value>
+          </enum>
+          <!-- cannot get the camera AF state, set it to INACTIVE -->
+          <delegate name="fixed">INACTIVE</delegate>
+        </entry>
+        <entry name="awbState" type="byte" visibility="public" enum="true"
+               hwlevel="limited">
+          <enum>
+            <value>INACTIVE</value>
+            <value>SEARCHING</value>
+            <value>CONVERGED</value>
+            <value>LOCKED</value>
+          </enum>
+          <delegate name="fixed">CONVERGED</delegate>
+        </entry>
+      </dynamic>
+      <static>
+        <entry name="aeLockAvailable" type="byte" visibility="public" enum="true"
+               typedef="boolean" hwlevel="legacy">
+          <enum>
+            <value>FALSE</value>
+            <value>TRUE</value>
+          </enum>
+          <!-- AE lock is not available -->
+          <value>FALSE</value>
+        </entry>
+        <entry name="awbLockAvailable" type="byte" visibility="public" enum="true"
+               typedef="boolean" hwlevel="legacy">
+          <enum>
+            <value>FALSE</value>
+            <value>TRUE</value>
+          </enum>
+          <!-- AWB lock is not available -->
+          <value>FALSE</value>
+        </entry>
+        <entry name="availableModes" type="byte" visibility="public"
+            type_notes="List of enums (android.control.mode)." container="array"
+            typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.control.mode</enum>
+          <value>AUTO</value>
+        </entry>
+      </static>
+      <controls>
+        <entry name="enableZsl" type="byte" visibility="public" enum="true" typedef="boolean">
+          <enum>
+            <value>FALSE</value>
+            <value>TRUE</value>
+          </enum>
+          <template>FALSE</template>
+          <delegate name="no-effect">FALSE</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="zoomRatioRange" type="float" visibility="public"
+               type_notes="The range of zoom ratios that this camera device supports."
+               container="array" typedef="rangeFloat" hwlevel="limited" hal_version="3.5">
+          <array>
+            <size>2</size>
+          </array>
+          <value>1.0 1.0</value>
+        </entry>
+      </static>
+      <controls>
+        <entry name="zoomRatio" type="float" visibility="public" hwlevel="limited"
+            hal_version="3.5">
+          <range minmax="android.control.zoomRatioRange" />
+          <template>1.0</template>
+          <delegate name="no-effect">1.0</delegate>
+        </entry>
+      </controls>
+    </section>
+    <section name="edge">
+      <controls>
+        <entry name="mode" type="byte" visibility="public" enum="true" hwlevel="full">
+          <enum>
+            <value>OFF</value>
+            <value>FAST</value>
+            <value>HIGH_QUALITY</value>
+            <value>ZERO_SHUTTER_LAG </value>
+          </enum>
+          <range>android.edge.availableEdgeModes</range>
+          <template name="still-capture">HIGH_QUALITY</template>
+          <template name="0-shutter-lag">ZERO_SHUTTER_LAG</template>
+          <template>FAST</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableEdgeModes" type="byte" visibility="public"
+               type_notes="list of enums" container="array" typedef="enumList"
+               hwlevel="full">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.edge.mode</enum>
+          <!-- edge enhancement is not supported -->
+          <value>OFF</value>
+        </entry>
+      </static>
+    </section>
+    <section name="flash">
+      <controls>
+        <entry name="mode" type="byte" visibility="public" enum="true" hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>SINGLE</value>
+            <value>TORCH</value>
+          </enum>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <namespace name="info">
+          <entry name="available" type="byte" visibility="public" enum="true"
+                 typedef="boolean" hwlevel="legacy">
+            <enum>
+              <value>FALSE</value>
+              <value>TRUE</value>
+            </enum>
+            <!-- flash is not available -->
+            <value>FALSE</value>
+          </entry>
+        </namespace>
+      </static>
+      <dynamic>
+        <entry name="state" type="byte" visibility="public" enum="true"
+               hwlevel="limited">
+          <enum>
+            <value>UNAVAILABLE</value>
+            <value>CHARGING</value>
+            <value>READY</value>
+            <value>FIRED</value>
+            <value>PARTIAL</value>
+          </enum>
+          <!-- flash is not available -->
+          <delegate name="fixed">UNAVAILABLE</delegate>
+        </entry>
+      </dynamic>
+    </section>
+    <section name="hotPixel">
+      <controls>
+        <entry name="mode" type="byte" visibility="public" enum="true">
+          <enum>
+            <value>OFF</value>
+            <value>FAST</value>
+            <value>HIGH_QUALITY</value>
+          </enum>
+          <range>android.hotPixel.availableHotPixelModes</range>
+          <template name="manual">OFF</template>
+          <template name="still-capture">HIGH_QUALITY</template>
+          <template>FAST</template>
+          <delegate name="no-effect">FAST</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableHotPixelModes" type="byte" visibility="public"
+          type_notes="list of enums" container="array" typedef="enumList">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.hotPixel.mode</enum>
+          <!-- FIXME: not sure hot pixel correction is present -->
+          <value>FAST</value>
+          <value>HIGH_QUALITY</value>
+        </entry>
+      </static>
+    </section>
+    <section name="jpeg">
+      <controls>
+        <entry name="orientation" type="int32" visibility="public" hwlevel="legacy">
+          <!--For EXTERNAL cameras the sensor orientation will always be set to 0 -->
+          <range>
+            <value>0</value>
+          </range>
+          <template>0</template>
+          <delegate name="no-effect">0</delegate>
+        </entry>
+        <entry name="quality" type="byte" visibility="public" hwlevel="legacy">
+          <range min="1" max="100" />
+          <template>90</template>
+          <delegate name="no-effect">90</delegate>
+        </entry>
+        <entry name="thumbnailQuality" type="byte" visibility="public" hwlevel="legacy">
+          <range min="1" max="100" />
+          <template>90</template>
+          <delegate name="no-effect">90</delegate>
+        </entry>
+        <entry name="thumbnailSize" type="int32" visibility="public"
+        container="array" typedef="size" hwlevel="legacy">
+          <array>
+            <size>2</size>
+          </array>
+          <range>android.jpeg.availableThumbnailSizes</range>
+          <template>0 0</template>
+          <delegate name="no-effect">0 0</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableThumbnailSizes" type="int32" visibility="public"
+        container="array" typedef="size" hwlevel="legacy">
+          <array>
+            <size>2</size>
+            <size>n</size>
+          </array>
+          <value>0 0</value>
+          <!-- FIXME: must include at least one non-zero resolution -->
+          <!--        but thumbnail not supported for now -->
+        </entry>
+        <entry name="maxSize" type="int32" visibility="system">
+          <!-- allow up to 6MB -->
+          <value>6000000</value>
+        </entry>
+      </static>
+    </section>
+    <section name="lens">
+      <controls>
+        <entry name="aperture" type="float" visibility="public" hwlevel="full">
+          <range>android.lens.info.availableApertures</range>
+          <!-- FIXME: set correct value for the camera -->
+          <template>2.0</template>
+          <delegate name="no-effect">2.0</delegate>
+        </entry>
+        <entry name="filterDensity" type="float" visibility="public" hwlevel="full">
+          <range>android.lens.info.availableFilterDensities</range>
+          <template>0.0</template>
+          <delegate name="no-effect">0.0</delegate>
+        </entry>
+        <entry name="focalLength" type="float" visibility="public" hwlevel="legacy">
+          <range>android.lens.info.availableFocalLengths</range>
+          <!-- FIXME: set correct value for the camera -->
+          <template>3.04</template>
+          <delegate name="no-effect">3.04</delegate>
+        </entry>
+        <entry name="focusDistance" type="float" visibility="public" hwlevel="full">
+          <range min="0" />
+          <template>0.0</template>
+          <delegate name="no-effect">0.0</delegate>
+        </entry>
+        <entry name="opticalStabilizationMode" type="byte" visibility="public"
+        enum="true" hwlevel="limited">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+          </enum>
+          <range>android.lens.info.availableOpticalStabilization</range>
+          <template>ON</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <namespace name="info">
+          <entry name="availableApertures" type="float" visibility="public"
+          container="array" hwlevel="full">
+            <array>
+              <size>n</size>
+            </array>
+           <!-- FIXME: set correct value for the camera -->
+           <value>2.0</value>
+          </entry>
+          <entry name="availableFilterDensities" type="float" visibility="public"
+          container="array" hwlevel="full">
+            <array>
+              <size>n</size>
+            </array>
+            <!-- filter densities not supported -->
+            <value>0</value>
+          </entry>
+          <entry name="availableFocalLengths" type="float" visibility="public"
+          type_notes="The list of available focal lengths"
+          container="array" hwlevel="legacy">
+            <array>
+              <size>n</size>
+            </array>
+            <!-- FIXME: set correct value for the camera -->
+            <value>3.04</value>
+          </entry>
+          <entry name="availableOpticalStabilization" type="byte"
+          visibility="public" type_notes="list of enums" container="array"
+          typedef="enumList" hwlevel="limited">
+            <array>
+              <size>n</size>
+            </array>
+            <enum>android.lens.opticalStabilizationMode</enum>
+            <!-- optical stabilization is not supported -->
+            <value>OFF</value>
+          </entry>
+          <entry name="minimumFocusDistance" type="float" visibility="public" optional="true"
+                 hwlevel="limited" permission_needed="true">
+            <!-- 0 for fixed-focus lens -->
+            <value>0</value>
+          </entry>
+          <entry name="focusDistanceCalibration" type="byte" visibility="public"
+                 enum="true" hwlevel="limited">
+            <enum>
+              <value>UNCALIBRATED</value>
+              <value>APPROXIMATE</value>
+              <value>CALIBRATED</value>
+            </enum>
+            <value>UNCALIBRATED</value>
+        </entry>
+        </namespace>
+        <entry name="facing" type="byte" visibility="public" enum="true" hwlevel="legacy">
+          <enum>
+            <value>FRONT</value>
+            <value>BACK</value>
+            <value>EXTERNAL</value>
+          </enum>
+          <value>EXTERNAL</value>
+        </entry>
+      </static>
+      <dynamic>
+        <entry name="state" type="byte" visibility="public" enum="true" hwlevel="limited">
+          <enum>
+            <value>STATIONARY</value>
+            <value>MOVING</value>
+          </enum>
+          <delegate name="fixed">STATIONARY</delegate>
+        </entry>
+      </dynamic>
+    </section>
+    <section name="noiseReduction">
+      <controls>
+        <entry name="mode" type="byte" visibility="public" enum="true" hwlevel="full">
+          <enum>
+            <value>OFF</value>
+            <value>FAST</value>
+            <value>HIGH_QUALITY</value>
+            <value>MINIMAL</value>
+            <value>ZERO_SHUTTER_LAG</value>
+          </enum>
+          <range>android.noiseReduction.availableNoiseReductionModes</range>
+          <template name="manual">OFF</template>
+          <template name="still-capture">HIGH_QUALITY</template>
+          <template name="0-shutter-lag">ZERO_SHUTTER_LAG</template>
+          <template>FAST</template>
+          <delegate name="no-effect">FAST</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableNoiseReductionModes" type="byte" visibility="public"
+        type_notes="list of enums" container="array" typedef="enumList" hwlevel="limited">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.noiseReduction.mode</enum>
+          <value>OFF</value>
+          <value>FAST</value>
+        </entry>
+      </static>
+    </section>
+    <section name="request">
+      <controls>
+        <entry name="id" type="int32" visibility="hidden">
+          <delegate name="no-effect">0</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="maxNumOutputStreams" type="int32" visibility="ndk_public"
+               container="array" hwlevel="legacy">
+          <array>
+            <size>3</size>
+          </array>
+          <!-- raw, non-stalling, stalling -->
+          <value>0 2 1</value>
+        </entry>
+        <entry name="maxNumInputStreams" type="int32" visibility="java_public" hwlevel="full">
+          <!-- input stream not supported -->
+          <value>0</value>
+        </entry>
+      </static>
+      <dynamic>
+        <entry name="pipelineDepth" type="byte" visibility="public" hwlevel="legacy">
+          <range min="0" max="android.request.pipelineMaxDepth" />
+          <delegate name="fixed">4</delegate>
+        </entry>
+      </dynamic>
+      <static>
+        <entry name="pipelineMaxDepth" type="byte" visibility="public" hwlevel="legacy">
+          <!-- capture -> ISP -> postproc -> readout -->
+          <value>4</value>
+        </entry>
+        <entry name="partialResultCount" type="int32" visibility="public" optional="true">
+          <!-- metadata is returned in a single result -->
+          <value>1</value>
+        </entry>
+        <entry name="availableCapabilities" type="byte" visibility="public"
+          enum="true" container="array" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>
+            <value>BACKWARD_COMPATIBLE</value>
+            <value>MANUAL_SENSOR</value>
+            <value>MANUAL_POST_PROCESSING</value>
+            <value>RAW</value>
+            <value>PRIVATE_REPROCESSING</value>
+            <value>READ_SENSOR_SETTINGS</value>
+            <value>BURST_CAPTURE</value>
+            <value>YUV_REPROCESSING</value>
+            <value>DEPTH_OUTPUT</value>
+            <value>CONSTRAINED_HIGH_SPEED_VIDEO</value>
+            <value>MOTION_TRACKING</value>
+            <value>LOGICAL_MULTI_CAMERA</value>
+            <value>MONOCHROME</value>
+            <value>SECURE_IMAGE_DATA</value>
+            <value>SYSTEM_CAMERA</value>
+            <value>OFFLINE_PROCESSING</value>
+            <value>ULTRA_HIGH_RESOLUTION_SENSOR</value>
+            <value>REMOSAIC_REPROCESSING</value>
+            <value>DYNAMIC_RANGE_TEN_BIT</value>
+            <value>STREAM_USE_CASE</value>
+          </enum>
+          <!-- only support minimal set of capabilities -->
+          <value>BACKWARD_COMPATIBLE</value>
+        </entry>
+        <entry name="availableRequestKeys" type="int32" visibility="ndk_public"
+               container="array" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <!-- left empty, filled by HAL -->
+        </entry>
+        <entry name="availableResultKeys" type="int32" visibility="ndk_public"
+               container="array" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <!-- left empty, filled by HAL -->
+        </entry>
+        <entry name="availableCharacteristicsKeys" type="int32" visibility="ndk_public"
+               container="array" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <!-- left empty, filled by HAL-->
+        </entry>
+        <entry name="availableSessionKeys" type="int32" visibility="ndk_public"
+               container="array" hwlevel="legacy" hal_version="3.3">
+          <array>
+            <size>n</size>
+          </array>
+          <!-- left empty -->
+        </entry>
+        <entry name="availablePhysicalCameraRequestKeys" type="int32" visibility="ndk_public"
+               container="array" hwlevel="limited" hal_version="3.3">
+          <array>
+            <size>n</size>
+          </array>
+          <!-- left empty -->
+        </entry>
+      </static>
+    </section>
+    <section name="scaler">
+      <controls>
+        <entry name="cropRegion" type="int32" visibility="public"
+               container="array" typedef="rectangle" hwlevel="legacy">
+          <array>
+            <size>4</size>
+          </array>
+          <!-- FIXME -->
+          <template>0 0 4096 2160</template>
+          <delegate name="no-effect">0 0 4096 2160</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableMaxDigitalZoom" type="float" visibility="public"
+              hwlevel="legacy">
+        <!-- zoom not supported -->
+        <value>1</value>
+        </entry>
+      </static>
+      <static>
+        <entry name="availableStreamConfigurations" type="int32" visibility="ndk_public"
+               enum="true" container="array" typedef="streamConfiguration" hwlevel="legacy">
+          <array>
+            <size>n</size>
+            <size>4</size>
+          </array>
+          <enum>
+            <value>OUTPUT</value>
+            <value>INPUT</value>
+          </enum>
+          <enum>
+            <value id="1">RGBA_8888</value>
+            <value id="2">RGBX_8888</value>
+            <value id="3">RGB_888</value>
+            <value id="4">RGB_565</value>
+            <value id="5">BGRA_8888</value>
+            <value id="16">YCBCR_422_SP</value>
+            <value id="17">YCRCB_420_SP</value>
+            <value id="20">YCBCR_422_I</value>
+            <value id="22">RGBA_FP16</value>
+            <value id="32">RAW16</value>
+            <value id="33">BLOB</value>
+            <value id="34">IMPLEMENTATION_DEFINED</value>
+            <value id="35">YCBCR_420_888</value>
+            <value id="36">RAW_OPAQUE</value>
+            <value id="37">RAW10</value>
+            <value id="38">RAW12</value>
+            <value id="43">RGBA_1010102</value>
+            <value id="538982489">Y8</value>
+            <value id="540422489">Y16</value>
+            <value id="842094169">YV12</value>
+            <value id="48">DEPTH_16</value>
+            <value id="49">DEPTH_24</value>
+            <value id="50">DEPTH_24_STENCIL_8</value>
+            <value id="51">DEPTH_32F</value>
+            <value id="52">DEPTH_32F_STENCIL_8</value>
+            <value id="53">STENCIL_8</value>
+            <value id="54">YCBCR_P010</value>
+            <value id="55">HSV_888</value>
+            <value id="56">R_8</value>
+          </enum>
+          <value>YCBCR_422_I 2560 1440 OUTPUT</value>
+          <value>YCBCR_422_I 1920 1080 OUTPUT</value>
+          <value>YCBCR_422_I 1640 1232 OUTPUT</value>
+          <value>YCBCR_422_I 1280 720 OUTPUT</value>
+          <value>YCBCR_422_I 1024 768 OUTPUT</value>
+          <value>YCBCR_422_I 640 480 OUTPUT</value>
+          <value>RGB_888 2560 1440 OUTPUT</value>
+          <value>RGB_888 1920 1080 OUTPUT</value>
+          <value>RGB_888 1640 1232 OUTPUT</value>
+          <value>RGB_888 1280 720 OUTPUT</value>
+          <value>RGB_888 1024 768 OUTPUT</value>
+          <value>RGB_888 640 480 OUTPUT</value>
+          <value>YCBCR_420_888 2560 1440 OUTPUT</value>
+          <value>YCBCR_420_888 1920 1080 OUTPUT</value>
+          <value>YCBCR_420_888 1640 1232 OUTPUT</value>
+          <value>YCBCR_420_888 1280 720 OUTPUT</value>
+          <value>YCBCR_420_888 1024 768 OUTPUT</value>
+          <value>YCBCR_420_888 640 480 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 2560 1440 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 1920 1080 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 1640 1232 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 1280 720 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 1024 768 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 640 480 OUTPUT</value>
+          <!-- JPEG is not directly supported but is mandatory -->
+          <value>BLOB 2560 1440 OUTPUT</value>
+          <value>BLOB 1920 1080 OUTPUT</value>
+          <value>BLOB 1640 1232 OUTPUT</value>
+          <value>BLOB 1280 720 OUTPUT</value>
+          <value>BLOB 1024 768 OUTPUT</value>
+          <value>BLOB 640 480 OUTPUT</value>
+          <value>BLOB 320 240 OUTPUT</value>
+        </entry>
+        <entry name="availableMinFrameDurations" type="int64" visibility="ndk_public"
+               container="array" typedef="streamConfigurationDuration" hwlevel="legacy">
+          <array>
+            <size>4</size>
+            <size>n</size>
+          </array>
+          <enum>android.scaler.availableStreamConfigurations</enum>
+          <value>YCBCR_422_I 2560 1440 33333333</value>
+          <value>YCBCR_422_I 1920 1080 33333333</value>
+          <value>YCBCR_422_I 1640 1232 33333333</value>
+          <value>YCBCR_422_I 1280 720 33333333</value>
+          <value>YCBCR_422_I 1024 768 33333333</value>
+          <value>YCBCR_422_I 640 480 33333333</value>
+          <value>YCBCR_422_I 320 240 33333333</value>
+          <value>RGB_888 2560 1440 33333333</value>
+          <value>RGB_888 1920 1080 33333333</value>
+          <value>RGB_888 1640 1232 33333333</value>
+          <value>RGB_888 1280 720 33333333</value>
+          <value>RGB_888 1024 768 33333333</value>
+          <value>RGB_888 640 480 33333333</value>
+          <value>YCBCR_420_888 2560 1440 33333333</value>
+          <value>YCBCR_420_888 1920 1080 33333333</value>
+          <value>YCBCR_420_888 1640 1232 33333333</value>
+          <value>YCBCR_420_888 1280 720 33333333</value>
+          <value>YCBCR_420_888 1024 768 33333333</value>
+          <value>YCBCR_420_888 640 480 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 2560 1440 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 1920 1080 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 1640 1232 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 1280 720 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 1024 768 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 640 480 33333333</value>
+          <!-- JPEG is not directly supported but is mandatory -->
+          <value>BLOB 2560 1440 33333333</value>
+          <value>BLOB 1920 1080 33333333</value>
+          <value>BLOB 1640 1232 33333333</value>
+          <value>BLOB 1280 720 33333333</value>
+          <value>BLOB 1024 768 33333333</value>
+          <value>BLOB 640 480 33333333</value>
+          <value>BLOB 320 240 33333333</value>
+        </entry>
+        <entry name="availableStallDurations" type="int64" visibility="ndk_public"
+               container="array" typedef="streamConfigurationDuration" hwlevel="legacy">
+          <array>
+            <size>4</size>
+            <size>n</size>
+          </array>
+          <enum>android.scaler.availableStreamConfigurations</enum>
+          <value>YCBCR_422_I 2560 1440 0</value>
+          <value>YCBCR_422_I 1920 1080 0</value>
+          <value>YCBCR_422_I 1640 1232 0</value>
+          <value>YCBCR_422_I 1280 720 0</value>
+          <value>YCBCR_422_I 1024 768 0</value>
+          <value>YCBCR_422_I 640 480 0</value>
+          <value>YCBCR_422_I 320 240 0</value>
+          <value>RGB_888 2560 1440 0</value>
+          <value>RGB_888 1920 1080 0</value>
+          <value>RGB_888 1640 1232 0</value>
+          <value>RGB_888 1280 720 0</value>
+          <value>RGB_888 1024 768 0</value>
+          <value>RGB_888 640 480 0</value>
+          <value>YCBCR_420_888 2560 1440 0</value>
+          <value>YCBCR_420_888 1920 1080 0</value>
+          <value>YCBCR_420_888 1640 1232 0</value>
+          <value>YCBCR_420_888 1280 720 0</value>
+          <value>YCBCR_420_888 1024 768 0</value>
+          <value>YCBCR_420_888 640 480 0</value>
+          <value>IMPLEMENTATION_DEFINED 2560 1440 0</value>
+          <value>IMPLEMENTATION_DEFINED 1920 1080 0</value>
+          <value>IMPLEMENTATION_DEFINED 1640 1232 0</value>
+          <value>IMPLEMENTATION_DEFINED 1280 720 0</value>
+          <value>IMPLEMENTATION_DEFINED 1024 768 0</value>
+          <value>IMPLEMENTATION_DEFINED 640 480 0</value>
+          <!-- JPEG is not directly supported but is mandatory -->
+          <!-- FIXME: set it to 1s for now -->
+          <value>BLOB 2560 1440 1000000000</value>
+          <value>BLOB 1920 1080 1000000000</value>
+          <value>BLOB 1640 1232 1000000000</value>
+          <value>BLOB 1280 720 1000000000</value>
+          <value>BLOB 1024 768 1000000000</value>
+          <value>BLOB 640 480 1000000000</value>
+          <value>BLOB 320 240 1000000000</value>
+        </entry>
+        <entry name="croppingType" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>CENTER_ONLY</value>
+            <value>FREEFORM</value>
+          </enum>
+          <value>CENTER_ONLY</value>
+        </entry>
+        <entry name="availableRotateAndCropModes" type="byte" visibility="public"
+               type_notes="list of enums" container="array" typedef="enumList"
+               hal_version="3.5">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.scaler.rotateAndCrop</enum>
+          <value>NONE</value>
+        </entry>
+      </static>
+      <controls>
+        <entry name="rotateAndCrop" type="byte" visibility="public" enum="true"
+               hal_version="3.5">
+          <enum>
+            <value>NONE</value>
+            <value>90</value>
+            <value>180</value>
+            <value>270</value>
+            <value>AUTO</value>
+          </enum>
+          <range>android.scaler.availableRotateAndCropModes</range>
+          <template>NONE</template>
+          <delegate name="no-effect">NONE</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="multiResolutionStreamSupported" type="byte" visibility="ndk_public" enum="true"
+          typedef="boolean" hwlevel="limited" hal_version="3.6">
+          <enum>
+            <value>FALSE</value>
+            <value>TRUE</value>
+          </enum>
+          <value>FALSE</value>
+        </entry>
+      </static>
+      <static>
+        <entry name="availableStreamUseCases" type="int64" visibility="public"
+            enum="true" container="array" hal_version="3.8">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>
+            <value id="0x0">DEFAULT</value>
+            <value id="0x1">PREVIEW</value>
+            <value id="0x2">STILL_CAPTURE</value>
+            <value id="0x3">VIDEO_RECORD</value>
+            <value id="0x4">PREVIEW_VIDEO_STILL</value>
+            <value id="0x5">VIDEO_CALL</value>
+          </enum>
+          <value>DEFAULT</value>
+          <value>PREVIEW</value>
+          <value>STILL_CAPTURE</value>
+          <value>VIDEO_RECORD</value>
+        </entry>
+      </static>
+    </section>
+    <section name="sensor">
+      <controls>
+        <entry name="exposureTime" type="int64" visibility="public" hwlevel="full">
+          <range minmax="android.sensor.info.exposureTimeRange" />
+          <!-- 1/8 -->
+          <template>125000000</template>
+          <delegate name="no-effect">125000000</delegate>
+        </entry>
+        <entry name="frameDuration" type="int64" visibility="public" hwlevel="full">
+          <!-- 30 FPS -->
+          <template>33333333</template>
+          <delegate name="no-effect">33333333</delegate>
+        </entry>
+        <entry name="sensitivity" type="int32" visibility="public" hwlevel="full">
+          <range minmax="android.sensor.info.sensitivityRange" />
+          <!-- FIXME -->
+          <template>400</template>
+          <delegate name="no-effect">400</delegate>
+        </entry>
+      </controls>
+      <static>
+        <namespace name="info">
+          <entry name="activeArraySize" type="int32" visibility="public"
+          type_notes="Four ints defining the active pixel rectangle"
+          container="array" typedef="rectangle" hwlevel="legacy">
+            <array>
+              <size>4</size>
+            </array>
+            <value>0 0 4096 2160</value>
+          </entry>
+          <entry name="sensitivityRange" type="int32" visibility="public"
+          type_notes="Range of supported sensitivities"
+          container="array" typedef="rangeInt"
+          hwlevel="full">
+            <array>
+              <size>2</size>
+            </array>
+            <!-- FIXME -->
+            <value>100 3200</value>
+          </entry>
+          <entry name="exposureTimeRange" type="int64" visibility="public"
+                 type_notes="nanoseconds" container="array" typedef="rangeLong"
+                 hwlevel="full">
+            <array>
+              <size>2</size>
+            </array>
+            <!-- FIXME -->
+            <value>10000 1000000000</value>
+          </entry>
+          <entry name="maxFrameDuration" type="int64" visibility="public"
+                 hwlevel="full">
+            <!-- 15 fps -->
+            <value>66666666</value>
+          </entry>
+          <entry name="physicalSize" type="float" visibility="public"
+          type_notes="width x height"
+          container="array" typedef="sizeF" hwlevel="legacy">
+            <array>
+              <size>2</size>
+            </array>
+            <!-- FIXME -->
+            <value>3.674 2.760</value>
+          </entry>
+          <entry name="pixelArraySize" type="int32" visibility="public"
+          container="array" typedef="size" hwlevel="legacy">
+            <array>
+              <size>2</size>
+            </array>
+            <!-- FIXME -->
+            <value>4096 2160</value>
+          </entry>
+          <entry name="timestampSource" type="byte" visibility="public"
+                 enum="true" hwlevel="legacy">
+            <enum>
+              <value>UNKNOWN</value>
+              <value>REALTIME</value>
+            </enum>
+            <value>UNKNOWN</value>
+          </entry>
+          <entry name="preCorrectionActiveArraySize" type="int32" visibility="public"
+            type_notes="Four ints defining the active pixel rectangle" container="array"
+            typedef="rectangle" hwlevel="legacy">
+            <array>
+              <size>4</size>
+            </array>
+            <value>0 0 4096 2160</value>
+          </entry>
+        </namespace>
+        <entry name="orientation" type="int32" visibility="public"
+               hwlevel="legacy">
+          <value>0</value>
+        </entry>
+      </static>
+      <dynamic>
+        <entry name="timestamp" type="int64" visibility="public"
+               hwlevel="legacy">
+          <delegate name="boottime" />
+        </entry>
+      </dynamic>
+      <controls>
+        <entry name="testPatternMode" type="int32" visibility="public" optional="true"
+          enum="true">
+          <enum>
+            <value>OFF</value>
+            <value>SOLID_COLOR</value>
+            <value>COLOR_BARS</value>
+            <value>COLOR_BARS_FADE_TO_GRAY</value>
+            <value>PN9</value>
+            <value id="256">CUSTOM1</value>
+          </enum>
+          <range>android.sensor.availableTestPatternModes</range>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableTestPatternModes" type="int32" visibility="public" optional="true"
+          type_notes="list of enums" container="array">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.sensor.testPatternMode</enum>
+          <value>OFF</value>
+        </entry>
+      </static>
+      <!--
+      <dynamic>
+        <entry name="rollingShutterSkew" type="int64" visibility="public" hwlevel="limited">
+          <delegate name="fixed">0</delegate>
+        </entry>
+      </dynamic>
+      -->
+    </section>
+    <section name="shading">
+      <controls>
+        <entry name="mode" type="byte" visibility="public" enum="true" hwlevel="full">
+          <enum>
+            <value>OFF</value>
+            <value>FAST</value>
+            <value>HIGH_QUALITY</value>
+          </enum>
+          <range>android.shading.availableModes</range>
+          <template name="manual">OFF</template>
+          <template name="still-capture">HIGH_QUALITY</template>
+          <template>FAST</template>
+          <delegate name="no-effect">FAST</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableModes" type="byte" visibility="public"
+            type_notes="List of enums (android.shading.mode)." container="array"
+            typedef="enumList" hwlevel="legacy">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.shading.mode</enum>
+          <value>FAST</value>
+          <value>HIGH_QUALITY</value>
+        </entry>
+      </static>
+    </section>
+    <section name="statistics">
+      <controls>
+        <entry name="faceDetectMode" type="byte" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value>OFF</value>
+            <value>SIMPLE</value>
+            <value>FULL</value>
+          </enum>
+          <range>android.statistics.info.availableFaceDetectModes</range>
+          <template>SIMPLE</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+        <entry name="hotPixelMapMode" type="byte" visibility="public" enum="true"
+        typedef="boolean">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+          </enum>
+          <range>android.statistics.info.availableHotPixelMapModes</range>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+        <entry name="lensShadingMapMode" type="byte" visibility="public" enum="true"
+        typedef="boolean">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+          </enum>
+          <range>android.statistics.info.availableLensShadingMapModes</range>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <namespace name="info">
+          <entry name="availableFaceDetectModes" type="byte"
+                 visibility="public"
+                 type_notes="List of enums from android.statistics.faceDetectMode"
+                 container="array"
+                 typedef="enumList"
+                 hwlevel="legacy">
+            <array>
+              <size>n</size>
+            </array>
+            <enum>android.statistics.faceDetectMode</enum>
+            <!-- face detection not supported -->
+            <value>OFF</value>
+          </entry>
+          <entry name="maxFaceCount" type="int32" visibility="public" hwlevel="legacy">
+            <value>0</value>
+          </entry>
+          <entry name="availableHotPixelMapModes" type="byte" visibility="public"
+                 type_notes="list of enums" container="array" typedef="boolean">
+            <array>
+              <size>n</size>
+            </array>
+            <enum>android.statistics.hotPixelMapMode</enum>
+            <value>OFF</value>
+          </entry>
+          <entry name="availableLensShadingMapModes" type="byte" visibility="public"
+                 type_notes="list of enums" container="array" typedef="enumList">
+            <array>
+              <size>n</size>
+            </array>
+            <enum>android.statistics.lensShadingMapMode</enum>
+            <value>OFF</value>
+          </entry>
+          <entry name="availableOisDataModes" type="byte" visibility="public"
+                 type_notes="list of enums" container="array" typedef="enumList" hal_version="3.3">
+            <array>
+              <size>n</size>
+            </array>
+            <enum>android.statistics.oisDataMode</enum>
+            <value>OFF</value>
+          </entry>
+        </namespace>
+      </static>
+      <dynamic>
+        <entry name="sceneFlicker" type="byte" visibility="public" enum="true"
+               hwlevel="full">
+          <enum>
+            <value>NONE</value>
+            <value>50HZ</value>
+            <value>60HZ</value>
+          </enum>
+          <delegate name="fixed">NONE</delegate>
+        </entry>
+      </dynamic>
+      <controls>
+        <entry name="oisDataMode" type="byte" visibility="public" enum="true" hal_version="3.3">
+          <enum>
+            <value>OFF</value>
+            <value>ON</value>
+          </enum>
+          <range>android.statistics.info.availableOisDataModes</range>
+          <template>OFF</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+    </section>
+    <section name="led">
+      <static>
+        <entry name="availableLeds" type="byte" visibility="hidden" optional="true"
+               enum="true"
+               container="array">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>
+            <value>TRANSMIT</value>
+          </enum>
+          <!-- left empty: led not available -->
+        </entry>
+      </static>
+    </section>
+    <section name="info">
+      <static>
+        <entry name="supportedHardwareLevel" type="byte" visibility="public"
+               enum="true" hwlevel="legacy">
+          <enum>
+            <value>LIMITED</value>
+            <value>FULL</value>
+            <value>LEGACY</value>
+            <value>3</value>
+            <value>EXTERNAL</value>
+          </enum>
+          <value>EXTERNAL</value>
+        </entry>
+      </static>
+    </section>
+    <section name="sync">
+      <dynamic>
+        <entry name="frameNumber" type="int64" visibility="ndk_public"
+               enum="true" hwlevel="legacy">
+          <enum>
+            <value id="-1">CONVERGING</value>
+            <value id="-2">UNKNOWN</value>
+          </enum>
+          <delegate name="fixed">UNKNOWN</delegate>
+        </entry>
+      </dynamic>
+      <static>
+        <entry name="maxLatency" type="int32" visibility="public" enum="true"
+               hwlevel="legacy">
+          <enum>
+            <value id="0">PER_FRAME_CONTROL</value>
+            <value id="-1">UNKNOWN</value>
+          </enum>
+          <value>UNKNOWN</value>
+        </entry>
+      </static>
+    </section>
+    <section name="distortionCorrection">
+      <controls>
+        <entry name="mode" type="byte" visibility="public" enum="true" hal_version="3.3">
+          <enum>
+            <value>OFF</value>
+            <value>FAST </value>
+            <value>HIGH_QUALITY </value>
+          </enum>
+          <range>android.distortionCorrection.availableModes</range>
+          <template name="manual">OFF</template>
+          <template name="still-capture">HIGH_QUALITY</template>
+          <template>FAST</template>
+          <delegate name="no-effect">OFF</delegate>
+        </entry>
+      </controls>
+      <static>
+        <entry name="availableModes" type="byte" visibility="public"
+        type_notes="list of enums" container="array" typedef="enumList" hal_version="3.3">
+          <array>
+            <size>n</size>
+          </array>
+          <enum>android.distortionCorrection.mode</enum>
+          <value>OFF</value>
+        </entry>
+      </static>
+    </section>
+  </namespace>
+</metadata>

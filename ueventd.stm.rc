@@ -1,11 +1,25 @@
-/dev/video0                0666   media     media
-/dev/video1                0666   media     media
+# Video dec/enc
+/dev/video0                0660   media     media
+/dev/video1                0660   media     media
+
+/dev/media0                0660   media     media
+/dev/media1                0660   media     media
+
+# Camera
 /dev/video2                0666   media     media
 /dev/video3                0666   media     media
-
-# 2 HD camera Max
 /dev/video4                0777   media     system
 /dev/video5                0777   media     system
+
+/dev/v4l-subdev0           0666   media     media
+/dev/v4l-subdev1           0666   media     media
+/dev/v4l-subdev2           0666   media     media
+/dev/v4l-subdev3           0666   media     media
+/dev/v4l-subdev4           0666   media     media
+/dev/v4l-subdev5           0666   media     media
+/dev/v4l-subdev6           0666   media     media
+
+/dev/media2                0660   media     media
 
 # GPU
 /dev/graphics/galcore      0666   system    graphics

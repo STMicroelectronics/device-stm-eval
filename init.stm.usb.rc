@@ -75,7 +75,7 @@ on early-boot
     chmod /dev/usb-ffs/adb 0770
     mkdir /config/usb_gadget/g1/functions/ffs.adb 0770 shell shell
     chmod /config/usb_gadget/g1/functions/ffs.adb 0770
-    mount functionfs adb /dev/usb-ffs/adb rmode=0770,fmode=0660,uid=2000,gid=2000
+    mount functionfs adb /dev/usb-ffs/adb rmode=0770,fmode=0660,uid=2000,gid=2000,no_disconnect=1
 
     # Create the function functionfs for MTP (treated in userland)
     mkdir /dev/usb-ffs/mtp 0770 mtp mtp
@@ -92,15 +92,57 @@ on early-boot
     chmod /config/usb_gadget/g1/functions/ffs.ptp 0770
     mount functionfs ptp /dev/usb-ffs/ptp rmode=0770,fmode=0660,uid=1024,gid=1024,no_disconnect=1
 
-    # Create the function functionfs for RNDIS
-    mkdir /config/usb_gadget/g1/functions/rndis.0 0770 shell shell
-    chmod /config/usb_gadget/g1/functions/rndis.0 0770
-    mkdir /config/usb_gadget/g1/functions/rndis.0/os_desc/interface.rndis
-    write /config/usb_gadget/g1/functions/rndis.0/os_desc/interface.rndis/compatible_id "RNDIS"
-    write /config/usb_gadget/g1/functions/rndis.0/os_desc/interface.rndis/sub_compatible_id "5162001"
+    # Create the function functionfs for NCM
+    mkdir /config/usb_gadget/g1/functions/ncm.0 0770 shell shell
+    chmod /config/usb_gadget/g1/functions/ncm.0 0770
+    write /config/usb_gadget/g1/functions/ncm.0/os_desc/interface.ncm/compatible_id "WINNCM"
+    write /config/usb_gadget/g1/functions/ncm.0/ifname ncm%d
+
+    # chown file/folder permission
+    chown system system /config/usb_gadget/
+    chown system system /config/usb_gadget/g1
+    chown system system /config/usb_gadget/g1/UDC
+    chown system system /config/usb_gadget/g1/bDeviceClass
+    chown system system /config/usb_gadget/g1/bDeviceProtocol
+    chown system system /config/usb_gadget/g1/bMaxPacketSize0
+    chown system system /config/usb_gadget/g1/bcdUSB
+    chown system system /config/usb_gadget/g1/functions
+    chown system system /config/usb_gadget/g1/idVendor
+    chown system system /config/usb_gadget/g1/os_desc
+    chown system system /config/usb_gadget/g1/os_desc/b_vendor_code
+    chown system system /config/usb_gadget/g1/os_desc/qw_sign
+    chown system system /config/usb_gadget/g1/os_desc/use
+    chown system system /config/usb_gadget/g1/bDeviceSubClass
+    chown system system /config/usb_gadget/g1/bcdDevice
+    chown system system /config/usb_gadget/g1/idProduct
+    chown system system /config/usb_gadget/g1/max_speed
+    chown system system /config/usb_gadget/g1/strings
+    chown system system /config/usb_gadget/g1/strings/0x409
+    chown system system /config/usb_gadget/g1/strings/0x409/manufacturer
+    chown system system /config/usb_gadget/g1/strings/0x409/product
+    chown system system /config/usb_gadget/g1/strings/0x409/serialnumber
+    chown system system /config/usb_gadget/g1/configs
+    chown system system /config/usb_gadget/g1/configs/b.1
+    chown system system /config/usb_gadget/g1/configs/b.1/MaxPower
+    chown system system /config/usb_gadget/g1/configs/b.1/bmAttributes
+    chown system system /config/usb_gadget/g1/configs/b.1/strings
+    chown system system /config/usb_gadget/g1/configs/b.1/strings/0x409
+    chown system system /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration
+    chown system system /config/usb_gadget/g1/functions/ffs.adb
+    chown system system /config/usb_gadget/g1/functions/ffs.mtp
+    chown system system /config/usb_gadget/g1/functions/ffs.ptp
+    chown system system /config/usb_gadget/g1/functions/ncm.0
+    chown system system /config/usb_gadget/g1/functions/ncm.0/dev_addr
+    chown system system /config/usb_gadget/g1/functions/ncm.0/host_addr
+    chown system system /config/usb_gadget/g1/functions/ncm.0/ifname
+    chown system system /config/usb_gadget/g1/functions/ncm.0/os_desc
+    chown system system /config/usb_gadget/g1/functions/ncm.0/os_desc/interface.ncm
+    chown system system /config/usb_gadget/g1/functions/ncm.0/os_desc/interface.ncm/compatible_id
+    chown system system /config/usb_gadget/g1/functions/ncm.0/os_desc/interface.ncm/sub_compatible_id
+    chown system system /config/usb_gadget/g1/functions/ncm.0/qmult
 
 on boot
-    setprop sys.usb.controller 49000000.usb-otg
+    setprop sys.usb.controller "48300000.usb"
 
     # Hack to make sure we run the init property triggers from /etc/init/gadget.rc script
     # instead of triggers from init.usb.rc and init.usb.configfs.rc.

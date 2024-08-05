@@ -14,11 +14,11 @@
 # limitations under the License.
 #
 
-include device/stm/stm32mp1/BoardConfigCommon.mk
+include device/stm/stm32mp2/BoardConfigCommon.mk
 
 TARGET_BOARD_PLATFORM := $(SOC_FAMILY)
 TARGET_BOOTLOADER_BOARD_NAME := $(BOARD_NAME)
-TARGET_BOARD_INFO_FILE := device/stm/stm32mp1/$(BOARD_NAME)/board-info.txt
+TARGET_BOARD_INFO_FILE := device/stm/stm32mp2/$(BOARD_NAME)/board-info.txt
 
 # =========================================================== #
 # Enable dex pre-opt to speed up initial boot                 #
@@ -34,7 +34,7 @@ endif
 # =========================================================== #
 # Images and partitions                                       #
 # =========================================================== #
-TARGET_FS_CONFIG_GEN := device/stm/stm32mp1/$(BOARD_NAME)/config.fs
+TARGET_FS_CONFIG_GEN := device/stm/stm32mp2/$(BOARD_NAME)/config.fs
 
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_FSBLIMAGE := false
@@ -47,21 +47,25 @@ TARGET_NO_DTIMAGE := false
 TARGET_NO_MISCIMAGE := false
 TARGET_NO_SPLASHIMAGE := false
 TARGET_NO_TEEFSIMAGE := false
+TARGET_NO_FIPIMAGE := false
 
 TARGET_USES_64_BIT_BINDER = true
 
-BOARD_SUPER_PARTITION_SIZE := ${STM32MP1_SUPER_PART_SIZE}
-BOARD_SUPER_PARTITION_GROUPS := stm32mp1_dynamic_partitions
-BOARD_STM32MP1_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product
-BOARD_STM32MP1_DYNAMIC_PARTITIONS_SIZE := ${STM32MP1_DYNAMIC_PART_SIZE}
+ifeq ($(BOARD_DISK_HYBRID),false)
+BOARD_SUPER_PARTITION_SIZE := ${STM32MP2_SUPER_PART_SIZE}
+BOARD_STM32MP2_DYNAMIC_PARTITIONS_SIZE := ${STM32MP2_DYNAMIC_PART_SIZE}
+else
+BOARD_SUPER_PARTITION_SIZE := ${STM32MP2_HYBRID_SUPER_PART_SIZE}
+BOARD_STM32MP2_DYNAMIC_PARTITIONS_SIZE := ${STM32MP2_HYBRID_DYNAMIC_PART_SIZE}
+endif
+
+BOARD_SUPER_PARTITION_GROUPS := stm32mp2_dynamic_partitions
+BOARD_STM32MP2_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product
 # BOARD_SUPER_PARTITION_METADATA_DEVICE := system
-# BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := ${STM32MP1_SYSTEM_PART_SIZE}
-# BOARD_SUPER_PARTITION_VENDOR_DEVICE_SIZE := ${STM32MP1_VENDOR_PART_SIZE}
+# BOARD_SUPER_PARTITION_SYSTEM_DEVICE_SIZE := ${STM32MP2_SYSTEM_PART_SIZE}
+# BOARD_SUPER_PARTITION_VENDOR_DEVICE_SIZE := ${STM32MP2_VENDOR_PART_SIZE}
 BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT := true
 BOARD_SUPER_IMAGE_IN_UPDATE_PACKAGE := true
-
-TARGET_RECOVERY_WIPE := device/stm/stm32mp1/$(BOARD_NAME)/recovery.wipe
-TARGET_RECOVERY_FSTAB := device/stm/stm32mp1/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm
 
 # enable AVB
 BOARD_AVB_ENABLE := true
@@ -84,7 +88,11 @@ endif
 # userdata.img
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
-BOARD_USERDATAIMAGE_PARTITION_SIZE := ${STM32MP1_USERDATA_PART_SIZE}
+ifeq ($(BOARD_DISK_HYBRID),false)
+BOARD_USERDATAIMAGE_PARTITION_SIZE := ${STM32MP2_USERDATA_PART_SIZE}
+else
+BOARD_USERDATAIMAGE_PARTITION_SIZE := ${STM32MP2_HYBRID_USERDATA_PART_SIZE}
+endif
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 
 ifeq ($(TARGET_USERIMAGES_SPARSE_EXT_DISABLED),)
@@ -92,7 +100,7 @@ TARGET_USERIMAGES_SPARSE_EXT_DISABLED := false
 endif
 
 # teefs.img
-BOARD_TEEFSIMAGE_PARTITION_SIZE := ${STM32MP1_TEEFS_PART_SIZE}
+BOARD_TEEFSIMAGE_PARTITION_SIZE := ${STM32MP2_TEEFS_PART_SIZE}
 
 # product.img
 BOARD_USES_PRODUCTIMAGE := true
@@ -107,22 +115,85 @@ BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := squashfs
 endif
 TARGET_COPY_OUT_VENDOR := vendor
 
+# metadata.img
+BOARD_USES_METADATA_PARTITION := true
+BOARD_METADATAIMAGE_PARTITION_SIZE := ${STM32MP2_METADATA_PART_SIZE}
+
+# Install modules
+KERNEL_MODULE_DIR := device/stm/stm32mp2-kernel/prebuilt/modules
+KERNEL_MODULES := $(wildcard $(KERNEL_MODULE_DIR)/*.ko)
+
+# put all modules in /vendor/lib/modules
+BOARD_VENDOR_KERNEL_MODULES := $(KERNEL_MODULES)
+
+# Allow LZ4 compression
+BOARD_RAMDISK_USE_LZ4 := true
+
 # boot.img
-BOARD_BOOTIMAGE_PARTITION_SIZE := ${STM32MP1_BOOT_PART_SIZE}
+BOARD_BOOTIMAGE_PARTITION_SIZE := ${STM32MP2_BOOT_PART_SIZE}
+BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
-BOARD_KERNEL_BASE        := 0xC0008000
+# vendor_boot.img (48MB for Kernel, 8MB for DT, 16MB for RAMDISK)
+BOARD_KERNEL_BASE        := 0x88000000
 BOARD_KERNEL_PAGESIZE    := 4096
-BOARD_KERNEL_TAGS_OFFSET := 0x00000100
-BOARD_RAMDISK_OFFSET     := 0x01000000
-BOARD_BOOTIMG_HEADER_VERSION := 1
+BOARD_DTB_OFFSET         := 0x03000000
+BOARD_RAMDISK_OFFSET     := 0x03800000
 
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --header_version $(BOARD_BOOTIMG_HEADER_VERSION)
+BOARD_BOOT_HEADER_VERSION    := 3
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --dtb_offset $(BOARD_DTB_OFFSET) --header_version $(BOARD_BOOT_HEADER_VERSION)
+
+BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := ${STM32MP2_VENDOR_BOOT_PART_SIZE}
+
+# Specify BOOT_KERNEL_MODULES
+#
+# modules for first stage in vendor_boot.img, the remainder goes to vendor.img
+BOOT_KERNEL_MODULES := \
+    adv7511.ko \
+    hwmon.ko \
+    mr75203.ko \
+    scmi-hwmon.ko \
+    arm_scpi.ko \
+    scpi-hwmon.ko \
+    scpi-cpufreq.ko \
+    clk-scpi.ko \
+    scpi_pm_domain.ko \
+    cpufreq-dt.ko \
+    spi-stm32.ko \
+    spidev.ko \
+    stm32-crc32.ko \
+    stm32-cryp.ko \
+    stm32-hash.ko \
+    i2c-demux-pinctrl.ko \
+    mdio-mux.ko \
+    stm32_ddr_pmu.ko \
+    ofpart.ko \
+    ohci-pci.ko \
+    optee-rng.ko \
+    virtio_blk.ko \
+    zsmalloc.ko \
+    zram.ko \
+    rtc-stm32.ko \
+    simpledrm.ko
+
+BOOT_KERNEL_MODULES_FILTER := $(foreach m,$(BOOT_KERNEL_MODULES),%/$(m))
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(filter $(BOOT_KERNEL_MODULES_FILTER),$(KERNEL_MODULES))
+
+# Use BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD to override
+# the content of the generated modules.load file
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(BOOT_KERNEL_MODULES)
+
+# dtbo.img
+BOARD_DTBOIMG_PARTITION_SIZE := ${STM32MP2_DTBO_PART_SIZE}
 
 # Enable A/B partitions mechanism for the update engine
 AB_OTA_UPDATER := true
 
 AB_OTA_PARTITIONS += \
     boot \
+    vendor_boot \
+    dtbo \
     system \
     system_ext \
     vendor \
@@ -133,8 +204,20 @@ AB_OTA_PARTITIONS += \
 # =========================================================== #
 BOARD_KERNEL_CMDLINE := androidboot.console=ttySTM0 serdev_ttyport.pdev_tty_port=ttyXXX consoleblank=0
 BOARD_KERNEL_CMDLINE += root=/dev/ram rw rootfstype=ext4 rootwait
-BOARD_KERNEL_CMDLINE += init=/init firmware_class.path=/vendor/firmware
+BOARD_KERNEL_CMDLINE += init=/init firmware_class.path=/vendor/firmware blk-crypto-fallback.num_keyslots=1
 BOARD_KERNEL_CMDLINE += androidboot.hardware=stm androidboot.fake_battery=1
+# TODO : add it in U-Boot instead (dynamic)
+BOARD_KERNEL_CMDLINE += androidboot.dtbo_idx=0
+
+ifeq ($(BOARD_DISK_TYPE),emmc)
+ifeq ($(BOARD_DISK_HYBRID),true)
+BOARD_KERNEL_CMDLINE += androidboot.boot_devices=soc@0/42080000.rifsc/48230000.mmc,soc@0/42080000.rifsc/48220000.mmc
+else
+BOARD_KERNEL_CMDLINE += androidboot.boot_devices=soc@0/42080000.rifsc/48230000.mmc
+endif
+else
+BOARD_KERNEL_CMDLINE += androidboot.boot_devices=soc@0/42080000.rifsc/48220000.mmc
+endif
 
 ifneq ($(TARGET_BUILD_VARIANT),user)
 
@@ -142,6 +225,7 @@ BOARD_KERNEL_CMDLINE += no_console_suspend
 BOARD_KERNEL_CMDLINE += loglevel=8
 BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE += console=ttySTM0,115200 earlycon
 
 # Enable graphic trace (drm)
 # BOARD_KERNEL_CMDLINE += drm.debug=0x3f
@@ -169,8 +253,8 @@ endif
 # bluetooth configuration
 BOARD_HAVE_BLUETOOTH := false
 BOARD_HAVE_BLUETOOTH_LINUX := false
-# BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/stm/stm32mp1/$(BOARD_NAME)/network/bt
-BOARD_SEPOLICY_DIRS += system/bt/vendor_libs/linux/sepolicy
+# BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/stm/stm32mp2/$(BOARD_NAME)/network/bt
+BOARD_VENDOR_SEPOLICY_DIRS += system/bt/vendor_libs/linux/sepolicy
 
 # wi-fi configuration
 ifeq ($(BOARD_WLAN_INTERFACE), wlan0)
@@ -180,9 +264,11 @@ BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_stm
 BOARD_HOSTAPD_DRIVER := NL80211
 BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_stm
-#WIFI_DRIVER_FW_PATH_AP := "/vendor/etc/firmware/htc_9271.fw"
-#WIFI_DRIVER_FW_PATH_STA := "/vendor/etc/firmware/htc_9271.fw"
-#WIFI_DRIVER_FW_PATH_P2P := "/vendor/etc/firmware/htc_9271.fw"
+WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
+WIFI_HAL_INTERFACE_COMBINATIONS := {{{STA}, 1}, {{AP}, 1}}
+#WIFI_DRIVER_FW_PATH_AP := "/vendor/etc/firmware/xxx.fw"
+#WIFI_DRIVER_FW_PATH_STA := "/vendor/etc/firmware/xxx.fw"
+#WIFI_DRIVER_FW_PATH_P2P := "/vendor/etc/firmware/xxx.fw"
 else
 error BOARD_WLAN_INTERFACE wrongly defined
 endif
@@ -198,17 +284,27 @@ BOARD_DRM_HWCOMPOSER_BUFFER_IMPORTER := stm32mpu
 # =========================================================== #
 # General configuration                                       #
 # =========================================================== #
+TARGET_SCREEN_DENSITY := 240
+
+# recovery configuration
+BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TARGET_RECOVERY_UI_MARGIN_HEIGHT := 165
+TARGET_RECOVERY_UI_LIB := librecovery_ui_stm
+TARGET_RECOVERY_FSTAB := device/stm/stm32mp2/$(BOARD_NAME)/fstab_$(BOARD_DISK_TYPE).stm
+TARGET_RECOVERY_WIPE := device/stm/stm32mp2/$(BOARD_NAME)/recovery.wipe
 
 # vendor manifest and compatibility matrix
-DEVICE_MANIFEST_FILE := device/stm/stm32mp1/$(BOARD_NAME)/manifest.xml
-DEVICE_MATRIX_FILE := device/stm/stm32mp1/$(BOARD_NAME)/compatibility_matrix.xml
-DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := device/stm/stm32mp1/$(BOARD_NAME)/framework_compatibility_matrix.xml
+DEVICE_MANIFEST_FILE := device/stm/stm32mp2/$(BOARD_NAME)/manifest.xml
+DEVICE_MATRIX_FILE := device/stm/stm32mp2/$(BOARD_NAME)/compatibility_matrix.xml
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := device/stm/stm32mp2/$(BOARD_NAME)/framework_compatibility_matrix.xml
 
 # use mke2fs to create ext4 images
 TARGET_USES_MKE2FS := true
 
 # sepolicy
-BOARD_SEPOLICY_DIRS += device/stm/stm32mp1/$(BOARD_NAME)/sepolicy
+BOARD_VENDOR_SEPOLICY_DIRS += device/stm/stm32mp2/$(BOARD_NAME)/sepolicy
 
 # properties
 BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
@@ -218,3 +314,8 @@ BOARD_VNDK_VERSION := current
 
 # lowram device
 MALLOC_SVELTE := true
+
+#SDK
+ifneq ($(filter sdk win_sdk sdk_addon,$(MAKECMDGOALS)),)
+BUILD_BROKEN_DUP_RULES := true
+endif

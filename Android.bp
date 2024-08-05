@@ -1,4 +1,4 @@
 subdirs = [
     "firmware",
-    "peripheral",
+    "hardware",
 ]

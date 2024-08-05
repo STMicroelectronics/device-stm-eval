@@ -1,6 +1,6 @@
 <compatibility-matrix version="1.0" type="framework">
     <hal format="hidl" optional="true">
-        <name>android.hardware.copro</name>
+        <name>vendor.st.copro</name>
         <version>1.0</version>
         <interface>
             <name>ICopro</name>

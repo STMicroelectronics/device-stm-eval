@@ -81,3 +81,13 @@ $(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/splash.im
 $(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/teeh.img)
 $(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/teed.img)
 $(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/teex.img)
+
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/bl31.bin)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/ddr-pmu.bin)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/fw-config.dtb)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/soc-fw-config.dtb)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/tee-header_v2.bin)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/tee-pageable_v2.bin)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/tee-pager_v2.bin)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/u-boot.dtb)
+$(call add-clean-step, rm -rf $(PRODUCT_OUT)/$(TARGET_COPY_OUT_VENDOR)/u-boot-nodtb.bin)

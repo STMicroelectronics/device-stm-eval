@@ -35,16 +35,6 @@
             <Limit name="bitrate" range="1-384000" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
-        <MediaCodec name="c2.android.avc.decoder" type="video/avc">
-            <Alias name="OMX.google.h264.decoder" />
-            <!-- profiles and levels:  ProfileHigh : Level3 -->
-            <Limit name="size" min="16x16" max="720x576" />
-            <Limit name="alignment" value="2x2" />
-            <Limit name="block-size" value="16x16" />
-            <Limit name="blocks-per-second" range="1-50000" />
-            <Limit name="bitrate" range="1-12000000" />
-            <Feature name="adaptive-playback" />
-        </MediaCodec>
         <MediaCodec name="c2.android.hevc.decoder" type="video/hevc">
             <Alias name="OMX.google.hevc.decoder" />
             <!-- profiles and levels:  ProfileMain : MainTierLevel3 -->

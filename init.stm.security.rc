@@ -46,4 +46,3 @@ on post-fs
 
     start tee_supplicant
     start vendor.keymaster-3-0-optee
-    exec_start wait_for_keymaster_optee

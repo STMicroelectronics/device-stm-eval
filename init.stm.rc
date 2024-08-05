@@ -25,20 +25,24 @@
 # 8. Run early-fs commands.
 # 9. Run fs commands.
 # 10. Run post-fs commands.
-# 11. Start the property service.
-# 12. Prepare to receive SIGCHLD signals.
-# 13. Make sure that the property service socket and SIGCHLD handler are ready.
-# 14. Run early-boot commands.
-# 15. Run boot commands.
-# 16. Run all property-triggered commands based on current property values.
+# 11. Run late-fs commands.
+# 12. Run post-fs-data commands.
+# 13. Start the property service.
+# 14. Prepare to receive SIGCHLD signals.
+# 15. Make sure that the property service socket and SIGCHLD handler are ready.
+# 16. Run early-boot commands.
+# 17. Run boot commands.
+# 18. Run all property-triggered commands based on current property values.
 
 import /vendor/etc/init/hw/init.${ro.hardware}.usb.rc
 import /vendor/etc/init/hw/init.${ro.hardware}.network.rc
 import /vendor/etc/init/hw/init.${ro.hardware}.security.rc
+import /vendor/etc/init/hw/init.${ro.hardware}.camera.rc
 
-on early-init
-    # debugfs not available in user build
-    mount debugfs debugfs /sys/kernel/debug mode=0755
+on early-init && property:ro.product.debugfs_restrictions.enabled=false
+    # debugfs mounted in case there is no restriction (not the case in user build)
+    mount debugfs debugfs /sys/kernel/debug
+    chmod 0755 /sys/kernel/debug
 
 on init
     # ZRAM setup
@@ -89,26 +93,6 @@ on init
     mkdir /dev/socket/pdx/system/vr/pose 0775 system system
     mkdir /dev/socket/pdx/system/vr/sensors 0775 system system
 
-    # Access to leds and backlight
-    chown system system /sys/class/leds/red/brightness
-    chown system system /sys/class/leds/red/trigger
-    chown system system /sys/class/leds/red/max_brightness
-    chmod 0664 /sys/class/leds/red/brightness
-    chmod 0664 /sys/class/leds/red/trigger
-    chmod 0444 /sys/class/leds/red/max_brightness
-
-    chown system system /sys/class/leds/heartbeat/brightness
-    chown system system /sys/class/leds/heartbeat/trigger
-    chown system system /sys/class/leds/heartbeat/max_brightness
-    chmod 0664 /sys/class/leds/heartbeat/brightness
-    chmod 0664 /sys/class/leds/heartbeat/trigger
-    chmod 0444 /sys/class/leds/heartbeat/max_brightness
-
-    chown system system /sys/class/backlight/panel-backlight/brightness
-    chown system system /sys/class/backlight/panel-backlight/max_brightness
-    chmod 0664 /sys/class/backlight/panel-backlight/brightness
-    chmod 0444 /sys/class/backlight/panel-backlight/max_brightness
-
     # boot time io tuning
     write /sys/block/mmcblk0/queue/iostats 0
     write /sys/block/mmcblk1/queue/iostats 0
@@ -121,6 +105,9 @@ on init
     write /sys/block/dm-1/queue/read_ahead_kb 2048
     write /sys/block/dm-2/queue/read_ahead_kb 2048
 
+on early-fs
+    start vold
+
 on fs
     start hwservicemanager
     mount_all /vendor/etc/fstab.stm --early
@@ -128,6 +115,12 @@ on fs
 on post-fs
     # set rlimit of lockedmem (RLIMIT_MEMLOCK) to 8 MiB to meet eBFD requirments
     setrlimit memlock 8388608 8388608
+
+    # load panel kernel module
+#    insmod /vendor/lib/modules/panel-orisetech-otm8009a.ko
+#    insmod /vendor/lib/modules/panel-raydium-rm68200.ko
+#    insmod /vendor/lib/modules/dw-mipi-dsi.ko
+#    insmod /vendor/lib/modules/dw_mipi_dsi-stm.ko
 
     # load gpu kernel module
     insmod /vendor/lib/modules/galcore.ko
@@ -139,12 +132,13 @@ on post-fs
     chmod 0440 /proc/pagetypeinfo
 
 on late-fs
-    start surfaceflinger
     start bootanim
-    start vendor.hwcomposer-2-1
-    start vendor.gralloc-2-0
+    class_start animation
 
     wait_for_prop hwservicemanager.ready true
+
+    # Keymaster required before mounting /data
+    exec_start wait_for_keymaster_optee
 
     # Mount RW partitions which need run fsck
     mount_all /vendor/etc/fstab.stm --late
@@ -152,13 +146,29 @@ on late-fs
     # watchdog daemon (started in secondary bootloader)
     start watchdogd
 
+    # Wait the end of asynchronous kernel modules loading
+    wait_for_prop vendor.modules.ready 1
+
+    # Consider that WLAN driver has been probed
+    setprop wlan.driver.status ok
+
 on zygote-start
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
 
 on boot
-    # Wait the end of asynchronous kernel modules loading
-    wait_for_prop vendor.modules.ready 1
+    # Access to leds and backlight
+    chown system system /sys/class/leds/blue:heartbeat/brightness
+    chown system system /sys/class/leds/blue:heartbeat/trigger
+    chown system system /sys/class/leds/blue:heartbeat/max_brightness
+    chmod 0664 /sys/class/leds/blue:heartbeat/brightness
+    chmod 0664 /sys/class/leds/blue:heartbeat/trigger
+    chmod 0444 /sys/class/leds/blue:heartbeat/max_brightness
+
+    chown system system /sys/class/backlight/panel-lvds-backlight/brightness
+    chown system system /sys/class/backlight/panel-lvds-backlight/max_brightness
+    chmod 0664 /sys/class/backlight/panel-lvds-backlight/brightness
+    chmod 0444 /sys/class/backlight/panel-lvds-backlight/max_brightness
 
     # Create NETMGR daemon socket area
     mkdir /dev/socket/netmgr 0750 radio radio
@@ -178,6 +188,8 @@ on boot
 on property:sys.boot_completed=1
     swapon_all /vendor/etc/fstab.stm
     write /proc/sys/vm/swappiness 100
+    write /proc/sys/vm/vfs_cache_pressure 500
+    write /proc/sys/vm/dirty_ratio 50
 
     write /sys/block/mmcblk0/queue/iostats 1
     write /sys/block/mmcblk1/queue/iostats 1
