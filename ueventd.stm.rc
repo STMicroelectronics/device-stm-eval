@@ -10,6 +10,7 @@
 /dev/video3                0666   media     media
 /dev/video4                0777   media     system
 /dev/video5                0777   media     system
+/dev/video6                0777   media     system
 
 /dev/v4l-subdev0           0666   media     media
 /dev/v4l-subdev1           0666   media     media

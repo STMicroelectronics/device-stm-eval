@@ -141,8 +141,8 @@ is_dcmipp_present() {
 
                     sensorsubdev="$(tr -d '\0' < $sub/name)"
                     sensordev=$(media-ctl -d ${mediadev} -p -e "${sensorsubdev}" | grep "node name" | awk -F\name '{print $2}')
-                    #interface is connected to input of isp (":1 [ENABLED" with media-ctl -p)
-                    interfacesubdev=$(media-ctl -d ${mediadev} -p -e "dcmipp_main_isp" | grep ":1 \[ENABLED" | awk -F\" '{print $2}')
+                    #interface is connected to input of dcmipp_input (":1 [ENABLED" with media-ctl -p)
+                    interfacesubdev=$(media-ctl -d $mediadev -p -e "dcmipp_input" | grep ":1 \[ENABLED" | awk -F\" '{print $2}')
                     if [[ ${do_verbose} == 1 ]]; then
                         echo "camerasetup: mediadev=\""${mediadev}\" >>/dev/kmsg # /dev/media2
                         echo "camerasetup: sensorsubdev=\""${sensorsubdev}\" >>/dev/kmsg # imx335 0-001a
@@ -276,10 +276,13 @@ init_camera() {
         # OV5640 claims to support all raw bayer combinations but always output SBGGR8_1X8...
         sensorbuscode=SBGGR8_1X8
     elif [ "${DCMIPP_SENSOR}" = "imx335" ]; then
+        main_postproc=`media-ctl -d ${mediadev} -e dcmipp_main_postproc`
+        aux_postproc=`media-ctl -d ${mediadev} -e dcmipp_aux_postproc`
+        #Enable gamma correction
+        v4l2-ctl -d ${main_postproc} -c gamma_correction=1
+        v4l2-ctl -d ${aux_postproc} -c gamma_correction=1
         v4l2-ctl -d ${sensordev} -c exposure=4490
-        # Do exposure correction continuously in background
-        # TODO : integrate isp binary in Android
-        # sleep 2  && while : ; do /usr/bin/isp -w > /dev/null ; done &
+        # The exposure correction is continuously updated in a thread of the camera interface
     fi
 
     # Let sensor return its prefered resolution & format === TO BE CHECKED
@@ -295,21 +298,21 @@ init_camera() {
         echo "camerasetup: Mediacontroller graph:" >>/dev/kmsg
     fi
 
+    #Aux pipe is linked to output of main ISP to inherit of image correction
+    cmd "  media-ctl -d ${mediadev} -l '\"dcmipp_main_isp\":1->\"dcmipp_aux_postproc\":0[1]' -v"
+
     # Use main pipe for ISP debayering and image correction
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'${sensorsubdev}':0[fmt:${sensorbuscode}/${sensor_width}x${sensor_height}@1/${FPS} field:none]\""
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'${interfacesubdev}':1[fmt:${sensorbuscode}/${sensor_width}x${sensor_height}]\""
+    cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'dcmipp_input':2[fmt:$sensorbuscode/${sensor_width}x${sensor_height}]\""
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'dcmipp_main_isp':1[fmt:RGB888_1X24/${sensor_width}x${sensor_height} field:none]\""
     # Main pipe downscale and color conversion is used to fit video encoder format/resolution
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'dcmipp_main_postproc':0[compose:(0,0)/${main_width}x${main_height}]\""
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'dcmipp_main_postproc':1[fmt:${main_format}/${main_width}x${main_height}]\" -v"
 
-    #Aux pipe is linked to output of main ISP to inherit of image correction
-    cmd "  media-ctl -d ${mediadev} -l '\"stm32_csi2host.48020000.csi2hos\":1->\"dcmipp_aux_postproc\":0[0]' -v"
-    cmd "  media-ctl -d ${mediadev} -l '\"dcmipp_main_isp\":2->\"dcmipp_aux_postproc\":0[1]' -v"
     #Aux pipe downscale is used to fit display preview format/resolution
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'dcmipp_aux_postproc':0[compose:(0,0)/${aux_width}x${aux_height}]\""
     cmd "  media-ctl -d ${mediadev} --set-v4l2 \"'dcmipp_aux_postproc':1[fmt:${aux_format}/${aux_width}x${aux_height}]\" -v"
-
 }
 
 #######################################
