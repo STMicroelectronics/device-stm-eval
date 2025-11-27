@@ -1,0 +1,38 @@
+
+license {
+    name: "firmware_rtlwifi_firmware_license",
+    license_text: ["LICENSE.rtlwifi_firmware"],
+}
+
+// install License file on device
+prebuilt_firmware {
+    name: "LICENCE.rtlwifi_firmware",
+    licenses: ["firmware_rtlwifi_firmware_license"],
+    src: "LICENSE.rtlwifi_firmware",
+    sub_dir: "rtlwifi",
+    vendor: true,
+}
+
+prebuilt_firmware {
+    name: "rtl8723aufw_A.bin",
+    licenses: ["firmware_rtlwifi_firmware_license"],
+    src: "rtl8723aufw_A.bin",
+    sub_dir: "rtlwifi",
+    vendor: true,
+}
+
+prebuilt_firmware {
+    name: "rtl8723aufw_B.bin",
+    licenses: ["firmware_rtlwifi_firmware_license"],
+    src: "rtl8723aufw_B.bin",
+    sub_dir: "rtlwifi",
+    vendor: true,
+}
+
+prebuilt_firmware {
+    name: "rtl8723aufw_B_NoBT.bin",
+    licenses: ["firmware_rtlwifi_firmware_license"],
+    src: "rtl8723aufw_B_NoBT.bin",
+    sub_dir: "rtlwifi",
+    vendor: true,
+}

@@ -35,9 +35,8 @@
 on early-boot
     mkdir /dev/usb-ffs 0775 shell shell
     chmod /dev/usb-ffs 0775
-    # Create mount-point for ConfigFS USB gadgets
-    # Add standard gadget entries
-    mount configfs none /config
+    # configfs already mounted for sdcardfs
+    # mount configfs none /config
     mkdir /config/usb_gadget/g1 0770
     chmod /config/usb_gadget/g1 0770
 

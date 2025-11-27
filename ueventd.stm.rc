@@ -35,6 +35,9 @@
 /dev/tee0                  0660   system    system
 /dev/teepriv0              0660   system    system
 
+# HDMI
+/dev/cec*                  0660   system    system
+
 # BT Realtek
 /dev/rtk_btusb             0660   bluetooth bluetooth
 

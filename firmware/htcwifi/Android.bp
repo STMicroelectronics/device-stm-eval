@@ -1,0 +1,23 @@
+
+license {
+    name: "firmware_atheros_license",
+    license_text: ["LICENSE.atheros"],
+}
+
+// install License file on device
+prebuilt_firmware {
+    name: "LICENCE.atheros",
+    licenses: ["firmware_atheros_license"],
+    src: "LICENSE.atheros",
+    sub_dir: "htcwifi",
+    vendor: true,
+}
+
+// firmware for Wi-Fi dongle TP-Link HTC TL WN722N
+prebuilt_firmware {
+    name: "htc_9271.fw",
+    licenses: ["firmware_atheros_license"],
+    src: "htc_9271.fw",
+    sub_dir: "htcwifi",
+    vendor: true,
+}

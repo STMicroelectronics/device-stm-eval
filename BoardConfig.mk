@@ -150,7 +150,6 @@ BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := ${STM32MP2_VENDOR_BOOT_PART_SIZE}
 #
 # modules for first stage in vendor_boot.img, the remainder goes to vendor.img
 BOOT_KERNEL_MODULES := \
-    adv7511.ko \
     hwmon.ko \
     mr75203.ko \
     scmi-hwmon.ko \
@@ -174,8 +173,7 @@ BOOT_KERNEL_MODULES := \
     virtio_blk.ko \
     zsmalloc.ko \
     zram.ko \
-    rtc-stm32.ko \
-    simpledrm.ko
+    rtc-stm32.ko
 
 BOOT_KERNEL_MODULES_FILTER := $(foreach m,$(BOOT_KERNEL_MODULES),%/$(m))
 BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(filter $(BOOT_KERNEL_MODULES_FILTER),$(KERNEL_MODULES))
@@ -199,6 +197,10 @@ AB_OTA_PARTITIONS += \
     vendor \
     product
 
+ifneq ($(BOARD_AVB_ENABLE),false)
+AB_OTA_PARTITIONS += vbmeta
+endif
+
 # =========================================================== #
 # Kernel command line                                         #
 # =========================================================== #
@@ -221,11 +223,15 @@ endif
 
 ifneq ($(TARGET_BUILD_VARIANT),user)
 
+ifeq (,$(filter st-demo, $(BOARD_OPTION)))
+
 BOARD_KERNEL_CMDLINE += no_console_suspend
 BOARD_KERNEL_CMDLINE += loglevel=8
 BOARD_KERNEL_CMDLINE += printk.devkmsg=on
-BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 BOARD_KERNEL_CMDLINE += console=ttySTM0,115200 earlycon
+endif
+
+BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 
 # Enable graphic trace (drm)
 # BOARD_KERNEL_CMDLINE += drm.debug=0x3f
@@ -252,23 +258,20 @@ endif
 
 # bluetooth configuration
 BOARD_HAVE_BLUETOOTH := false
-BOARD_HAVE_BLUETOOTH_LINUX := false
-# BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/stm/stm32mp2/$(BOARD_NAME)/network/bt
-BOARD_VENDOR_SEPOLICY_DIRS += system/bt/vendor_libs/linux/sepolicy
 
 # wi-fi configuration
 ifeq ($(BOARD_WLAN_INTERFACE), wlan0)
 BOARD_WLAN_DEVICE := stm
 WPA_SUPPLICANT_VERSION := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_stm
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
 BOARD_HOSTAPD_DRIVER := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_stm
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
 WIFI_HAL_INTERFACE_COMBINATIONS := {{{STA}, 1}, {{AP}, 1}}
-#WIFI_DRIVER_FW_PATH_AP := "/vendor/etc/firmware/xxx.fw"
-#WIFI_DRIVER_FW_PATH_STA := "/vendor/etc/firmware/xxx.fw"
-#WIFI_DRIVER_FW_PATH_P2P := "/vendor/etc/firmware/xxx.fw"
+#WIFI_DRIVER_FW_PATH_AP := "/vendor/firmware/xxx.fw"
+#WIFI_DRIVER_FW_PATH_STA := "/vendor/firmware/xxx.fw"
+#WIFI_DRIVER_FW_PATH_P2P := "/vendor/firmware/xxx.fw"
 else
 error BOARD_WLAN_INTERFACE wrongly defined
 endif
@@ -297,11 +300,12 @@ TARGET_RECOVERY_WIPE := device/stm/stm32mp2/$(BOARD_NAME)/recovery.wipe
 
 # vendor manifest and compatibility matrix
 DEVICE_MANIFEST_FILE := device/stm/stm32mp2/$(BOARD_NAME)/manifest.xml
+ifeq ($(BOARD_SECURITY),optee)
+DEVICE_MANIFEST_FILE += device/stm/stm32mp2/$(BOARD_NAME)/manifest_security.xml
+endif
+
 DEVICE_MATRIX_FILE := device/stm/stm32mp2/$(BOARD_NAME)/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := device/stm/stm32mp2/$(BOARD_NAME)/framework_compatibility_matrix.xml
-
-# use mke2fs to create ext4 images
-TARGET_USES_MKE2FS := true
 
 # sepolicy
 BOARD_VENDOR_SEPOLICY_DIRS += device/stm/stm32mp2/$(BOARD_NAME)/sepolicy
@@ -311,9 +315,6 @@ BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
 
 # vndk
 BOARD_VNDK_VERSION := current
-
-# lowram device
-MALLOC_SVELTE := true
 
 #SDK
 ifneq ($(filter sdk win_sdk sdk_addon,$(MAKECMDGOALS)),)

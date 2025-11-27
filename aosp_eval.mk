@@ -30,6 +30,9 @@ BOARD_NAME := eval
 # Board config used to define required configuration (only aosp up to now)
 BOARD_CONFIG := aosp
 
+# Board security option (optee or software)
+BOARD_SECURITY := optee
+
 # Board flavour used to define required configuration (eval)
 BOARD_FLAVOUR ?= ev1
 
@@ -39,11 +42,17 @@ BOARD_REV ?= 0xC
 # keep two revision support
 BOARD_REV_2 ?= 0xD
 
-# Board option (normal, st)
-BOARD_OPTION ?= st
+# Board option (normal, st, st-demo)
+BOARD_OPTION ?= st-demo
 
 # Board display option (default)
 BOARD_DISPLAY_PANEL ?= default
+
+# Board camera option (default or no)
+BOARD_CAMERA ?= default
+
+# Board HDMI option (default or no)
+BOARD_HDMI ?= no
 
 # Board disk type (sd, emmc)
 ifdef STM32MP2_DISK_TYPE
@@ -54,12 +63,11 @@ $(error STM32MP2_DISK_TYPE not defined!!)
 endif
 
 # Inherit from the Android Open Source Product configuration
-$(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
+$(call inherit-product, frameworks/native/build/phone-xhdpi-4096-dalvik-heap.mk)
 $(call inherit-product, device/stm/stm32mp2/$(BOARD_NAME)/device.mk)
 $(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackageGo.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_no_telephony.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/go_defaults.mk)
 
 # Inherit from the Google Mobile Service configuration if available
 $(call inherit-product-if-exists, vendor/google/products/gms.mk)

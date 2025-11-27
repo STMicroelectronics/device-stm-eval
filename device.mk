@@ -16,7 +16,6 @@
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 
 PRODUCT_CHARACTERISTICS := nosdcard
@@ -30,6 +29,11 @@ PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SOONG_NAMESPACES += \
 	device/stm/stm32mp2 \
 	vendor/stm/app
+
+# Configure Virtual A/B OTA
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression.mk)
+PRODUCT_VIRTUAL_AB_COMPRESSION_METHOD := gz
+PRODUCT_VIRTUAL_AB_COMPRESSION_FACTOR := 65536
 
 # added only for compatibility (not used)
 PRODUCT_SOONG_NAMESPACES += external/mesa3d
@@ -48,19 +52,11 @@ DONT_UNCOMPRESS_PRIV_APPS_DEXS := true
 
 PRODUCT_PROPERTY_OVERRIDES += ro.control_privapp_permissions=enforce
 
-# Set default ringtone and notification sounds
-PRODUCT_PROPERTY_OVERRIDES += \
-	ro.config.ringtone=Ring_Synth_04.ogg \
-	ro.config.notification_sound=pixiedust.ogg
-
 # Reduces GC frequency of foreground apps by 50%
 PRODUCT_PROPERTY_OVERRIDES += dalvik.vm.foreground-heap-growth-multiplier=2.0
 
 # Setting Overlay
 DEVICE_PACKAGE_OVERLAYS := device/stm/stm32mp2/$(BOARD_NAME)/overlay
-
-# Build and run only ART
-PRODUCT_RUNTIMES := runtime_libart_default
 
 # ZRAM writeback (default values)
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -74,20 +70,30 @@ PRODUCT_PACKAGES += \
 PRODUCT_PROPERTY_OVERRIDES += /
 	android.flash.info.available=false
 
-PRODUCT_PROPERTY_OVERRIDES += \
-	debug.sf.nobootanimation=1
-
 #### INIT BEGIN ####
 
+PRODUCT_PROPERTY_OVERRIDES += /
+	persist.sys.bootanim.play_sound=0
+
 # Init
+PRODUCT_PACKAGES += \
+	initprop
+
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp2-kernel/prebuilt/kernel-$(SOC_FAMILY):kernel \
 	device/stm/stm32mp2/$(BOARD_NAME)/task_profiles.json:$(TARGET_COPY_OUT_VENDOR)/etc/task_profiles.json \
 	device/stm/stm32mp2/$(BOARD_NAME)/init.recovery.stm.rc:${TARGET_COPY_OUT_RECOVERY}/root/init.recovery.stm.rc \
 	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.rc \
 	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.network.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.network.rc \
-	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.security.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.security.rc \
 	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.usb.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.usb.rc
+
+ifeq ($(BOARD_SECURITY),optee)
+PRODUCT_COPY_FILES += \
+	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.security.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.security.rc
+else
+PRODUCT_COPY_FILES += \
+	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.swsecurity.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.security.rc
+endif
 
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp2/$(BOARD_NAME)/ueventd.stm.rc:$(TARGET_COPY_OUT_VENDOR)/etc/ueventd.rc
@@ -128,7 +134,10 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	ro.surface_flinger.use_context_priority=false \
 	ro.surface_flinger.max_frame_buffer_acquired_buffers=3 \
 	ro.surface_flinger.has_HDR_display=false \
-	ro.surface_flinger.ignore_hdr_camera_layers=true \
+	ro.surface_flinger.ignore_hdr_camera_layers=true
+
+# Dataspace : BT709
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	ro.surface_flinger.default_composition_dataspace=281083904
 
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += debug.stagefright.c2inputsurface=3
@@ -145,6 +154,15 @@ PRODUCT_PACKAGES += \
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.opengles.version=196609
 
+# Vulkan
+#TARGET_USES_VULKAN := true
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.hardware.vulkan=stm
+
+# EGL loader property
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.hardware.egl=VIVANTE
+
 # Graphics GPU libraries
 PRODUCT_PACKAGES += \
 	libGLESv2_VIVANTE \
@@ -152,11 +170,20 @@ PRODUCT_PACKAGES += \
 	libGLESv1_CM_VIVANTE \
 	libGAL \
 	libGLSLC \
-	libVSC
+	libVSC \
+	libvulkan_VIVANTE \
+	libSPIRV_viv \
+	vulkan.stm
 
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \
 	frameworks/native/data/etc/android.software.opengles.deqp.level-2022-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.opengles.deqp.level.xml
+
+# Vulkan
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.vulkan.version-1_3.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.version.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.vulkan.compute-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.compute.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.vulkan.level-0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.vulkan.level.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.software.vulkan.deqp.level-2022-03-01.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.vulkan.deqp.level.xml
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.hardware.gralloc=$(TARGET_GRALLOC_HAL)
@@ -167,7 +194,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # composer: disable overlay planes usage
 PRODUCT_PROPERTY_OVERRIDES += \
-	vendor.hwc.drm.use_overlay_planes=0
+	vendor.hwc.drm.use_overlay_planes=1
 
 # Graphics hardware service
 PRODUCT_PACKAGES += \
@@ -245,6 +272,7 @@ PRODUCT_COPY_FILES += \
 #### AUDIO END ####
 
 #### CAMERA BEGIN ####
+ifeq ($(BOARD_CAMERA), default)
 
 PRODUCT_PACKAGES += \
 	android.hardware.camera.provider-service.stm32mpu
@@ -276,6 +304,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	vendor.camera.main.format=YUYV8_2X8 \
 	vendor.camera.isp.update.frequency=5000
 
+endif
 #### CAMERA END ####
 
 #### VIDEO BEGIN ####
@@ -349,26 +378,33 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.crypto.volume.options=adiantum \
 	ro.crypto.volume.metadata.encryption=adiantum
 
-# Keymaster hardware service
+# Keymaster
+ifeq ($(BOARD_SECURITY),optee)
 PRODUCT_PACKAGES += \
 	android.hardware.keymaster@3.0-service.optee \
 	wait_for_keymaster_optee
+
+PRODUCT_COPY_FILES += \
+	device/stm/stm32mp2-tee/prebuilt/$(SOC_VERSION)-$(BOARD_FLAVOUR)/ta/dba51a17-0563-11e7-93b1-6fa7b0071a51.ta:$(TARGET_COPY_OUT_VENDOR)/lib/optee_armtz/dba51a17-0563-11e7-93b1-6fa7b0071a51.ta
+endif
 
 # Keymint software service
 PRODUCT_PACKAGES += \
 	android.hardware.security.keymint-service
 
-# Keymaster OP-TEE TA
-PRODUCT_COPY_FILES += \
-	device/stm/stm32mp2-tee/prebuilt/$(SOC_VERSION)-$(BOARD_FLAVOUR)/ta/dba51a17-0563-11e7-93b1-6fa7b0071a51.ta:$(TARGET_COPY_OUT_VENDOR)/lib/optee_armtz/dba51a17-0563-11e7-93b1-6fa7b0071a51.ta
-
-# Gatekeeper hardware service
+# Gatekeeper
+ifeq ($(BOARD_SECURITY),optee)
 PRODUCT_PACKAGES += \
 	android.hardware.gatekeeper@1.0-service.optee
 
-# Gatekeeper OP-TEE TA
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp2-tee/prebuilt/$(SOC_VERSION)-$(BOARD_FLAVOUR)/ta/4d573443-6a56-4272-ac6f-2425af9ef9bb.ta:$(TARGET_COPY_OUT_VENDOR)/lib/optee_armtz/4d573443-6a56-4272-ac6f-2425af9ef9bb.ta
+else
+PRODUCT_PACKAGES += \
+	android.hardware.gatekeeper@1.0-service.software
+endif
+
+ifeq ($(BOARD_SECURITY),optee)
 
 # TEE hardware service
 PRODUCT_PACKAGES += \
@@ -401,6 +437,8 @@ PRODUCT_COPY_FILES += \
 	device/stm/stm32mp2-tee/prebuilt/$(SOC_VERSION)-$(BOARD_FLAVOUR)/ta/a4c04d50-f180-11e8-8eb2-f2801f1b9fd1.ta:$(TARGET_COPY_OUT_VENDOR)/lib/optee_armtz/a4c04d50-f180-11e8-8eb2-f2801f1b9fd1.ta
 endif
 
+endif
+
 PRODUCT_PACKAGES += \
 	android.hardware.oemlock@1.0-service.stm32mpu
 
@@ -408,16 +446,18 @@ PRODUCT_PACKAGES += \
 
 #### NETWORK START ####
 
+# install firmwares (Wi-Fi dongle TP-Link HTC TL WN722N)
+PRODUCT_PACKAGES += \
+	LICENCE.atheros \
+	htc_9271.fw
+
 # Set this value here as BoardConfig.mk is parsed later
 BOARD_WLAN_INTERFACE := wlan0
 
 # Wireless configuration
 PRODUCT_COPY_FILES += \
 	device/stm/stm32mp2/$(BOARD_NAME)/network/wifi/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf \
-	device/stm/stm32mp2/$(BOARD_NAME)/firmware/rtlwifi/rtl8723aufw_A.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/rtlwifi/rtl8723aufw_A.bin \
-	device/stm/stm32mp2/$(BOARD_NAME)/firmware/rtlwifi/rtl8723aufw_B.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/rtlwifi/rtl8723aufw_B.bin \
-	device/stm/stm32mp2/$(BOARD_NAME)/firmware/rtlwifi/rtl8723aufw_B_NoBT.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/rtlwifi/rtl8723aufw_B_NoBT.bin \
-	device/stm/stm32mp2/$(BOARD_NAME)/firmware/htcwifi/htc_9271.fw:$(TARGET_COPY_OUT_VENDOR)/firmware/htc_9271.fw
+	device/stm/stm32mp2/$(BOARD_NAME)/network/wifi/p2p_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant_overlay.conf
 
 # Wi-Fi hardware service
 PRODUCT_PACKAGES += \
@@ -425,7 +465,7 @@ PRODUCT_PACKAGES += \
 
 # Control Flow Integrity enabled for Wi-Fi libraries
 PRODUCT_CFI_INCLUDE_PATHS += \
-	device/stm/stm32mp2/eval/network/wifi/wpa_supplicant_8_lib
+	device/stm/stm32mp2/$(BOARD_NAME)/network/wifi/wpa_supplicant_8_lib
 
 # Network
 PRODUCT_PACKAGES += \
@@ -481,7 +521,8 @@ PRODUCT_PACKAGES += \
 
 # Power hardware service
 PRODUCT_PACKAGES += \
-	android.hardware.power-service.example
+	android.hardware.power-service.example \
+	android.hardware.power.stats-service.example
 
 # Memtrack hardware service
 PRODUCT_PACKAGES += \
@@ -512,6 +553,20 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.software.backup.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.backup.xml \
 	frameworks/native/data/etc/android.hardware.screen.landscape.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.screen.landscape.xml \
 	frameworks/native/data/etc/android.software.verified_boot.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.verified_boot.xml
+
+# HDMI: HDMI, CEC and EARC AIDL HAL
+ifeq ($(BOARD_HDMI), default)
+PRODUCT_PACKAGES += \
+	android.hardware.tv.cec@1.0-service.stm32mpu
+
+PRODUCT_COPY_FILES += \
+	frameworks/native/data/etc/android.hardware.hdmi.cec.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.hdmi.cec.xml
+
+PRODUCT_PROPERTY_OVERRIDES += \
+	persist.vendor.hdmi.cec_device=cec0 \
+	ro.hdmi.cec_device_types=playback_device \
+	ro.hdmi.device_type=4
+endif
 
 #### SYSTEM START ####
 
@@ -556,11 +611,16 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 #### ST CUSTOM START ####
 
-ifeq ($(BOARD_OPTION),st)
+ifneq (,$(filter st st-demo, $(BOARD_OPTION)))
 
-# /system_ext packages (override)
+# add custom copro service and associated hardware service
 PRODUCT_PACKAGES += \
-    Launcher3QuickStepGo
+	android.hardware.copro-service.stm32mpu \
+	coproservice \
+	copro
+
+PRODUCT_COPY_FILES += \
+	device/stm/stm32mp2/$(BOARD_NAME)/init.stm.copro.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.stm.copro.rc
 
 # remove unecessary system packages
 PRODUCT_PACKAGES += \
@@ -574,7 +634,14 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	STLauncher \
 	STVideo \
-	STGraphics
+	STGraphics \
+	STCamera
+
+PRODUCT_PACKAGES += \
+	STVulkan
+
+PRODUCT_COPY_FILES += \
+	$(call find-copy-subdir-files,*,vendor/stm/app/stvulkan_assets,$(TARGET_COPY_OUT_VENDOR)/data/local/stvulkan_assets)
 
 # ST applications compiled with the speed compiler filter
 PRODUCT_DEXPREOPT_SPEED_APPS += \
@@ -592,6 +659,12 @@ PRODUCT_PACKAGES += \
 PRODUCT_DEXPREOPT_SPEED_APPS += \
 	STPerf
 
+endif
+
+# Intergrate Updater Sample only in debug build
+ifneq ($(TARGET_BUILD_VARIANT),user)
+PRODUCT_PACKAGES += \
+	SystemUpdaterSample
 endif
 
 PRODUCT_COPY_FILES += \
@@ -624,7 +697,29 @@ PRODUCT_PACKAGES += \
 # SDK add-on generation
 ifneq ($(filter sdk win_sdk sdk_addon,$(MAKECMDGOALS)),)
 # Generate SDK only in Eng build variant
+
 ifneq ($(TARGET_BUILD_VARIANT),eng)
 $(error Eng build variant must be set to generate SDK. Current build variant is $(TARGET_BUILD_VARIANT), please use lunch command to select eng build variant.)
 endif
+
+PRODUCT_SDK_ADDON_NAME := copro_sdk_addon
+
+MODULE_BUILD_FROM_SOURCE := true
+
+# Copy the manifest for the SDK add-on
+PRODUCT_SDK_ADDON_COPY_FILES := \
+	device/stm/stm32mp2/$(BOARD_NAME)/sdk_addon/manifest.ini:manifest.ini \
+	device/stm/stm32mp2/$(BOARD_NAME)/sdk_addon/package.xml:package.xml \
+	device/stm/stm32mp2/$(BOARD_NAME)/sdk_addon/source.properties:source.properties
+
+# Define the IMAGE PROPERTY (emulator related, but needed to build)
+PRODUCT_SDK_ADDON_SYS_IMG_SOURCE_PROP := device/stm/stm32mp2/$(BOARD_NAME)/sdk_addon/source.properties
+
+# Copy the jar files for the optional libraries that are exposed as APIs.
+PRODUCT_SDK_ADDON_COPY_MODULES := \
+	copro:libs/copro.jar
+
+# Rules for public APIs
+PRODUCT_SDK_ADDON_STUB_DEFS := device/stm/stm32mp2/$(BOARD_NAME)/sdk_addon/sdk_addon_stub_defs.txt
+
 endif

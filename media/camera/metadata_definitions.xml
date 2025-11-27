@@ -691,7 +691,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <value>BACK</value>
             <value>EXTERNAL</value>
           </enum>
-          <value>EXTERNAL</value>
+          <value>BACK</value>
         </entry>
       </static>
       <dynamic>
@@ -897,36 +897,36 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <value id="55">HSV_888</value>
             <value id="56">R_8</value>
           </enum>
-          <value>YCBCR_422_I 2560 1440 OUTPUT</value>
+          <value>YCBCR_422_I 2592 1944 OUTPUT</value>
           <value>YCBCR_422_I 1920 1080 OUTPUT</value>
-          <value>YCBCR_422_I 1640 1232 OUTPUT</value>
+          <value>YCBCR_422_I 1600 1200 OUTPUT</value>
+          <value>YCBCR_422_I 1280 960 OUTPUT</value>
           <value>YCBCR_422_I 1280 720 OUTPUT</value>
-          <value>YCBCR_422_I 1024 768 OUTPUT</value>
           <value>YCBCR_422_I 640 480 OUTPUT</value>
-          <value>RGB_888 2560 1440 OUTPUT</value>
+          <value>YCBCR_422_I 320 240 OUTPUT</value>
+          <value>RGB_888 2592 1944 OUTPUT</value>
           <value>RGB_888 1920 1080 OUTPUT</value>
-          <value>RGB_888 1640 1232 OUTPUT</value>
+          <value>RGB_888 1600 1200 OUTPUT</value>
+          <value>RGB_888 1280 960 OUTPUT</value>
           <value>RGB_888 1280 720 OUTPUT</value>
-          <value>RGB_888 1024 768 OUTPUT</value>
           <value>RGB_888 640 480 OUTPUT</value>
-          <value>YCBCR_420_888 2560 1440 OUTPUT</value>
+          <value>RGB_888 320 240 OUTPUT</value>
+          <value>YCBCR_420_888 2592 1944 OUTPUT</value>
           <value>YCBCR_420_888 1920 1080 OUTPUT</value>
-          <value>YCBCR_420_888 1640 1232 OUTPUT</value>
+          <value>YCBCR_420_888 1600 1200 OUTPUT</value>
+          <value>YCBCR_420_888 1280 960 OUTPUT</value>
           <value>YCBCR_420_888 1280 720 OUTPUT</value>
-          <value>YCBCR_420_888 1024 768 OUTPUT</value>
           <value>YCBCR_420_888 640 480 OUTPUT</value>
-          <value>IMPLEMENTATION_DEFINED 2560 1440 OUTPUT</value>
-          <value>IMPLEMENTATION_DEFINED 1920 1080 OUTPUT</value>
-          <value>IMPLEMENTATION_DEFINED 1640 1232 OUTPUT</value>
-          <value>IMPLEMENTATION_DEFINED 1280 720 OUTPUT</value>
-          <value>IMPLEMENTATION_DEFINED 1024 768 OUTPUT</value>
+          <value>YCBCR_420_888 320 240 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 2592 1944 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 1600 1200 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 1280 960 OUTPUT</value>
           <value>IMPLEMENTATION_DEFINED 640 480 OUTPUT</value>
+          <value>IMPLEMENTATION_DEFINED 320 240 OUTPUT</value>
           <!-- JPEG is not directly supported but is mandatory -->
-          <value>BLOB 2560 1440 OUTPUT</value>
-          <value>BLOB 1920 1080 OUTPUT</value>
-          <value>BLOB 1640 1232 OUTPUT</value>
-          <value>BLOB 1280 720 OUTPUT</value>
-          <value>BLOB 1024 768 OUTPUT</value>
+          <value>BLOB 2592 1944 OUTPUT</value>
+          <value>BLOB 1600 1200 OUTPUT</value>
+          <value>BLOB 1280 960 OUTPUT</value>
           <value>BLOB 640 480 OUTPUT</value>
           <value>BLOB 320 240 OUTPUT</value>
         </entry>
@@ -937,37 +937,36 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <size>n</size>
           </array>
           <enum>android.scaler.availableStreamConfigurations</enum>
-          <value>YCBCR_422_I 2560 1440 33333333</value>
+          <value>YCBCR_422_I 2592 1944 33333333</value>
           <value>YCBCR_422_I 1920 1080 33333333</value>
-          <value>YCBCR_422_I 1640 1232 33333333</value>
+          <value>YCBCR_422_I 1600 1200 33333333</value>
+          <value>YCBCR_422_I 1280 960 33333333</value>
           <value>YCBCR_422_I 1280 720 33333333</value>
-          <value>YCBCR_422_I 1024 768 33333333</value>
           <value>YCBCR_422_I 640 480 33333333</value>
           <value>YCBCR_422_I 320 240 33333333</value>
-          <value>RGB_888 2560 1440 33333333</value>
+          <value>RGB_888 2592 1944 33333333</value>
           <value>RGB_888 1920 1080 33333333</value>
-          <value>RGB_888 1640 1232 33333333</value>
+          <value>RGB_888 1600 1200 33333333</value>
+          <value>RGB_888 1280 960 33333333</value>
           <value>RGB_888 1280 720 33333333</value>
-          <value>RGB_888 1024 768 33333333</value>
           <value>RGB_888 640 480 33333333</value>
-          <value>YCBCR_420_888 2560 1440 33333333</value>
+          <value>RGB_888 320 240 33333333</value>
+          <value>YCBCR_420_888 2592 1944 33333333</value>
           <value>YCBCR_420_888 1920 1080 33333333</value>
-          <value>YCBCR_420_888 1640 1232 33333333</value>
+          <value>YCBCR_420_888 1600 1200 33333333</value>
+          <value>YCBCR_420_888 1280 960 33333333</value>
           <value>YCBCR_420_888 1280 720 33333333</value>
-          <value>YCBCR_420_888 1024 768 33333333</value>
           <value>YCBCR_420_888 640 480 33333333</value>
-          <value>IMPLEMENTATION_DEFINED 2560 1440 33333333</value>
-          <value>IMPLEMENTATION_DEFINED 1920 1080 33333333</value>
-          <value>IMPLEMENTATION_DEFINED 1640 1232 33333333</value>
-          <value>IMPLEMENTATION_DEFINED 1280 720 33333333</value>
-          <value>IMPLEMENTATION_DEFINED 1024 768 33333333</value>
+          <value>YCBCR_420_888 320 240 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 2592 1944 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 1600 1200 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 1280 960 33333333</value>
           <value>IMPLEMENTATION_DEFINED 640 480 33333333</value>
+          <value>IMPLEMENTATION_DEFINED 320 240 33333333</value>
           <!-- JPEG is not directly supported but is mandatory -->
-          <value>BLOB 2560 1440 33333333</value>
-          <value>BLOB 1920 1080 33333333</value>
-          <value>BLOB 1640 1232 33333333</value>
-          <value>BLOB 1280 720 33333333</value>
-          <value>BLOB 1024 768 33333333</value>
+          <value>BLOB 2592 1944 33333333</value>
+          <value>BLOB 1600 1200 33333333</value>
+          <value>BLOB 1280 960 33333333</value>
           <value>BLOB 640 480 33333333</value>
           <value>BLOB 320 240 33333333</value>
         </entry>
@@ -978,38 +977,37 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <size>n</size>
           </array>
           <enum>android.scaler.availableStreamConfigurations</enum>
-          <value>YCBCR_422_I 2560 1440 0</value>
+          <value>YCBCR_422_I 2592 1944 0</value>
           <value>YCBCR_422_I 1920 1080 0</value>
-          <value>YCBCR_422_I 1640 1232 0</value>
+          <value>YCBCR_422_I 1600 1200 0</value>
+          <value>YCBCR_422_I 1280 960 0</value>
           <value>YCBCR_422_I 1280 720 0</value>
-          <value>YCBCR_422_I 1024 768 0</value>
           <value>YCBCR_422_I 640 480 0</value>
           <value>YCBCR_422_I 320 240 0</value>
-          <value>RGB_888 2560 1440 0</value>
+          <value>RGB_888 2592 1944 0</value>
           <value>RGB_888 1920 1080 0</value>
-          <value>RGB_888 1640 1232 0</value>
+          <value>RGB_888 1600 1200 0</value>
+          <value>RGB_888 1280 960 0</value>
           <value>RGB_888 1280 720 0</value>
-          <value>RGB_888 1024 768 0</value>
           <value>RGB_888 640 480 0</value>
-          <value>YCBCR_420_888 2560 1440 0</value>
+          <value>RGB_888 320 240 0</value>
+          <value>YCBCR_420_888 2592 1944 0</value>
           <value>YCBCR_420_888 1920 1080 0</value>
-          <value>YCBCR_420_888 1640 1232 0</value>
+          <value>YCBCR_420_888 1600 1200 0</value>
+          <value>YCBCR_420_888 1280 960 0</value>
           <value>YCBCR_420_888 1280 720 0</value>
-          <value>YCBCR_420_888 1024 768 0</value>
           <value>YCBCR_420_888 640 480 0</value>
-          <value>IMPLEMENTATION_DEFINED 2560 1440 0</value>
-          <value>IMPLEMENTATION_DEFINED 1920 1080 0</value>
-          <value>IMPLEMENTATION_DEFINED 1640 1232 0</value>
-          <value>IMPLEMENTATION_DEFINED 1280 720 0</value>
-          <value>IMPLEMENTATION_DEFINED 1024 768 0</value>
+          <value>YCBCR_420_888 320 240 0</value>
+          <value>IMPLEMENTATION_DEFINED 2592 1944 0</value>
+          <value>IMPLEMENTATION_DEFINED 1600 1200 0</value>
+          <value>IMPLEMENTATION_DEFINED 1280 960 0</value>
           <value>IMPLEMENTATION_DEFINED 640 480 0</value>
+          <value>IMPLEMENTATION_DEFINED 320 240 0</value>
           <!-- JPEG is not directly supported but is mandatory -->
           <!-- FIXME: set it to 1s for now -->
-          <value>BLOB 2560 1440 1000000000</value>
-          <value>BLOB 1920 1080 1000000000</value>
-          <value>BLOB 1640 1232 1000000000</value>
-          <value>BLOB 1280 720 1000000000</value>
-          <value>BLOB 1024 768 1000000000</value>
+          <value>BLOB 2592 1944 1000000000</value>
+          <value>BLOB 1600 1200 1000000000</value>
+          <value>BLOB 1280 960 1000000000</value>
           <value>BLOB 640 480 1000000000</value>
           <value>BLOB 320 240 1000000000</value>
         </entry>

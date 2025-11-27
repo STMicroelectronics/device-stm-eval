@@ -1,5 +1,5 @@
 #
-# Copyright 2015 The Android Open Source Project
+# Copyright 2025 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,20 +25,20 @@
 # 8. Run early-fs commands.
 # 9. Run fs commands.
 # 10. Run post-fs commands.
-# 11. Start the property service.
-# 12. Prepare to receive SIGCHLD signals.
-# 13. Make sure that the property service socket and SIGCHLD handler are ready.
-# 14. Run early-boot commands.
-# 15. Run boot commands.
-# 16. Run all property-triggered commands based on current property values.
-
-on zygote-start
-    # Wifi
-    # Create the directories used by the Wireless subsystem
-    mkdir /data/vendor/wifi 0771 wifi wifi
-    mkdir /data/vendor/wifi/wpa 0770 wifi wifi
-    mkdir /data/vendor/wifi/wpa/sockets 0770 wifi wifi
+# 11. Run late-fs commands.
+# 12. Run post-fs-data commands.
+# 13. Start the property service.
+# 14. Prepare to receive SIGCHLD signals.
+# 15. Make sure that the property service socket and SIGCHLD handler are ready.
+# 16. Run early-boot commands.
+# 17. Run boot commands.
+# 18. Run all property-triggered commands based on current property values.
 
 on boot
-    setprop wifi.interface wlan0
-
+    # Access to copro firmware
+    chmod 0770 /sys/class/remoteproc/remoteproc0/firmware
+    chown system system /sys/class/remoteproc/remoteproc0/firmware
+    chmod 0770 /sys/class/remoteproc/remoteproc0/state
+    chown system system /sys/class/remoteproc/remoteproc0/state
+    chmod 0770 /sys/module/firmware_class/parameters/path
+    chown system system /sys/module/firmware_class/parameters/path

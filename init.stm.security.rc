@@ -40,9 +40,14 @@ service tee_supplicant /vendor/bin/tee-supplicant /dev/teepriv0
     oneshot
 
 on post-fs
+    write /dev/kmsg "OP-TEE ARM TZ Security Used"
+
     mkdir /mnt/vendor/teefs/optee 0775 system system
     mkdir /mnt/vendor/teefs/optee/optee_armtz 0775 system system
     restorecon_recursive /mnt/vendor/teefs
 
     start tee_supplicant
     start vendor.keymaster-3-0-optee
+
+    # Keymaster required before mounting /data
+    exec_start wait_for_keymaster_optee

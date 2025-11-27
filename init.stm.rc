@@ -38,11 +38,15 @@ import /vendor/etc/init/hw/init.${ro.hardware}.usb.rc
 import /vendor/etc/init/hw/init.${ro.hardware}.network.rc
 import /vendor/etc/init/hw/init.${ro.hardware}.security.rc
 import /vendor/etc/init/hw/init.${ro.hardware}.camera.rc
+import /vendor/etc/init/hw/init.${ro.hardware}.copro.rc
 
 on early-init && property:ro.product.debugfs_restrictions.enabled=false
     # debugfs mounted in case there is no restriction (not the case in user build)
     mount debugfs debugfs /sys/kernel/debug
     chmod 0755 /sys/kernel/debug
+
+on early-init && property:ro.debuggable=1
+    start init_prop
 
 on init
     # ZRAM setup
@@ -137,9 +141,6 @@ on late-fs
 
     wait_for_prop hwservicemanager.ready true
 
-    # Keymaster required before mounting /data
-    exec_start wait_for_keymaster_optee
-
     # Mount RW partitions which need run fsck
     mount_all /vendor/etc/fstab.stm --late
 
@@ -226,8 +227,16 @@ service init_driver /vendor/bin/initdriver
     disabled
     oneshot
 
+service init_prop /vendor/bin/initprop
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
 # Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
 service watchdogd /system/bin/watchdogd 10 20
     class core
+    user root
     oneshot
     seclabel u:r:watchdogd:s0

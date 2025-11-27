@@ -7,13 +7,13 @@ insmod /vendor/lib/modules/sha3_generic.ko
 # echo "BootAnalyze: load audio start">>/dev/kmsg
 insmod /vendor/lib/modules/snd-soc-simple-card-utils.ko
 insmod /vendor/lib/modules/snd-soc-audio-graph-card.ko
-insmod /vendor/lib/modules/snd-soc-hdmi-codec.ko
 insmod /vendor/lib/modules/snd-soc-spdif-rx.ko
 insmod /vendor/lib/modules/snd-soc-spdif-tx.ko
 insmod /vendor/lib/modules/snd-soc-stm32-i2s.ko
 insmod /vendor/lib/modules/snd-soc-stm32-sai-sub.ko
 insmod /vendor/lib/modules/snd-soc-stm32-sai.ko
 insmod /vendor/lib/modules/snd-soc-stm32-spdifrx.ko
+insmod /vendor/lib/modules/snd-soc-dmic.ko
 insmod /vendor/lib/modules/snd-soc-wm-hubs.ko
 insmod /vendor/lib/modules/snd-soc-wm8994.ko
 insmod /vendor/lib/modules/wm8994.ko
@@ -135,6 +135,10 @@ insmod /vendor/lib/modules/dwmac-sun8i.ko
 insmod /vendor/lib/modules/dwmac-sunxi.ko
 # echo "BootAnalyze: load ethernet end">>/dev/kmsg
 
+# echo "BootAnalyze: mmc power seq for Wi-Fi driver start">>/dev/kmsg
+insmod /vendor/lib/modules/pwrseq_simple.ko
+# echo "BootAnalyze: mmc power seq for Wi-Fi driver end">>/dev/kmsg
+
 # echo "BootAnalyze: Touchscreen driver start">>/dev/kmsg
 insmod /vendor/lib/modules/edt-ft5x06.ko
 insmod /vendor/lib/modules/ili210x.ko
@@ -161,7 +165,7 @@ insmod /vendor/lib/modules/ath9k.ko
 insmod /vendor/lib/modules/ath9k_htc.ko
 # echo "BootAnalyze: TP-Link HTC TL WN722N Wi-Fi dongle driver end">>/dev/kmsg
 
-# echo "BootAnalyze: Broadcom Wi-Fi dongle driver start">>/dev/kmsg
+# echo "BootAnalyze: Broadcom Wi-Fi driver start">>/dev/kmsg
 # insmod /vendor/lib/modules/brcmfmac.ko
 # insmod /vendor/lib/modules/brcmutil.ko
 # echo "BootAnalyze: Broadcom Wi-Fi dongle driver end">>/dev/kmsg
@@ -178,15 +182,25 @@ insmod /vendor/lib/modules/stm32-dcmi.ko
 insmod /vendor/lib/modules/stm32-dcmipp.ko
 # echo "BootAnalyze: DCMI camera driver end">>/dev/kmsg
 
-# echo "BootAnalyze: DFSDM driver start">>/dev/kmsg
+# echo "BootAnalyze: IIO driver start">>/dev/kmsg
 insmod /vendor/lib/modules/kfifo_buf.ko
 insmod /vendor/lib/modules/industrialio-triggered-buffer.ko
-# echo "BootAnalyze: DFSDM driver end">>/dev/kmsg
+insmod /vendor/lib/modules/industrialio-buffer-cb.ko
+insmod /vendor/lib/modules/industrialio-hw-consumer.ko
+# echo "BootAnalyze: IIO driver end">>/dev/kmsg
 
 # echo "BootAnalyze: ADC driver start">>/dev/kmsg
 insmod /vendor/lib/modules/stm32-adc-core.ko
 insmod /vendor/lib/modules/stm32-adc.ko
 # echo "BootAnalyze: ADC driver end">>/dev/kmsg
+
+# echo "BootAnalyze: digital microphone start">>/dev/kmsg
+# TODO : under crash due to stm32-mdf-adc probe
+# insmod /vendor/lib/modules/stm32-mdf-core.ko
+# insmod /vendor/lib/modules/stm32-mdf-serial.ko
+# insmod /vendor/lib/modules/stm32-mdf-adc.ko
+# insmod /vendor/lib/modules/stm32_amdf.ko
+# echo "BootAnalyze: digital microphone end">>/dev/kmsg
 
 # echo "BootAnalyze: PWM driver start">>/dev/kmsg
 insmod /vendor/lib/modules/pwm-stm32.ko
